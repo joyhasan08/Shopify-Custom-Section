@@ -1,0 +1,1088 @@
+{% comment %}
+  Pokemon Store Hero Banner - Shopify Section
+  Fully customizable through the Shopify theme editor
+{% endcomment %}
+
+<style>
+  #shopify-section-{{ section.id }} .pokemon-banner-container {
+    width: 100%;
+    height: {{ section.settings.banner_height }}px;
+    position: relative;
+    {% if section.settings.background_image != blank %}
+    background-image: url('{{ section.settings.background_image | img_url: '2000x' }}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    {% else %}
+    background: linear-gradient(135deg, {{ section.settings.gradient_color_1 }}, {{ section.settings.gradient_color_2 }}, {{ section.settings.gradient_color_3 }});
+    {% endif %}
+    overflow: hidden;
+  }
+
+  {% if section.settings.background_image != blank and section.settings.overlay_opacity > 0 %}
+  #shopify-section-{{ section.id }} .pokemon-banner-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: {{ section.settings.overlay_color }};
+    opacity: {{ section.settings.overlay_opacity }};
+    z-index: 1;
+  }
+  {% endif %}
+
+  /* Animated grid background */
+  #shopify-section-{{ section.id }} .grid-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      linear-gradient(rgba(255,255,255,{{ section.settings.grid_opacity }}) 2px, transparent 2px),
+      linear-gradient(90deg, rgba(255,255,255,{{ section.settings.grid_opacity }}) 2px, transparent 2px);
+    background-size: 50px 50px;
+    {% if section.settings.enable_grid_animation %}
+    animation: gridMove 20s linear infinite;
+    {% endif %}
+    perspective: 1000px;
+    transform: rotateX(60deg) scale(2);
+    transform-origin: center bottom;
+  }
+
+  @keyframes gridMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 50px 50px; }
+  }
+
+  /* Floating geometric shapes */
+  #shopify-section-{{ section.id }} .shape {
+    position: absolute;
+    opacity: {{ section.settings.shapes_opacity }};
+    {% if section.settings.enable_shapes_animation %}
+    animation: float 6s ease-in-out infinite;
+    {% endif %}
+  }
+
+  #shopify-section-{{ section.id }} .shape.triangle {
+    width: 0;
+    height: 0;
+    border-left: 30px solid transparent;
+    border-right: 30px solid transparent;
+    border-bottom: 52px solid {{ section.settings.shape_color_1 }};
+  }
+
+  #shopify-section-{{ section.id }} .shape.circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: {{ section.settings.shape_color_2 }};
+  }
+
+  #shopify-section-{{ section.id }} .shape-1 { top: 10%; left: 5%; animation-delay: 0s; }
+  #shopify-section-{{ section.id }} .shape-2 { top: 60%; left: 8%; animation-delay: 1s; }
+  #shopify-section-{{ section.id }} .shape-3 { top: 20%; right: 10%; animation-delay: 2s; }
+  #shopify-section-{{ section.id }} .shape-4 { bottom: 15%; right: 5%; animation-delay: 1.5s; }
+  #shopify-section-{{ section.id }} .shape-5 { top: 50%; left: 15%; animation-delay: 0.5s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(10deg); }
+  }
+
+  /* Content wrapper */
+  #shopify-section-{{ section.id }} .content-wrapper {
+    position: relative;
+    z-index: 10;
+    height: 100%;
+    max-width: {{ section.settings.content_width }}px;
+    margin: 0 auto;
+    padding: 0 60px;
+    {% if section.settings.layout_style == 'centered' %}
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    {% else %}
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    {% endif %}
+  }
+
+  /* Left side - Text content */
+  #shopify-section-{{ section.id }} .text-content {
+    {% if section.settings.layout_style == 'centered' %}
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 50px;
+    text-align: center;
+    {% else %}
+    flex: 1;
+    max-width: 600px;
+    text-align: {{ section.settings.text_alignment }};
+    {% endif %}
+    animation: slideInLeft 1s ease-out;
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  #shopify-section-{{ section.id }} .text-content h1 {
+    font-size: {{ section.settings.heading_size }}px;
+    font-weight: 900;
+    color: {{ section.settings.heading_color }};
+    text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+    margin-bottom: 20px;
+    line-height: 1.1;
+  }
+
+  #shopify-section-{{ section.id }} .text-content .highlight {
+    color: {{ section.settings.highlight_color }};
+    text-shadow: 0 0 20px {{ section.settings.highlight_color }}80;
+  }
+
+  #shopify-section-{{ section.id }} .text-content p {
+    font-size: {{ section.settings.subheading_size }}px;
+    color: {{ section.settings.subheading_color }};
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    line-height: 1.6;
+  }
+
+  #shopify-section-{{ section.id }} .cta-buttons {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    {% if section.settings.layout_style == 'centered' or section.settings.text_alignment == 'center' %}
+    justify-content: center;
+    {% endif %}
+  }
+
+  #shopify-section-{{ section.id }} .btn {
+    padding: 15px 35px;
+    font-size: {{ section.settings.button_text_size }}px;
+    font-weight: 700;
+    border: none;
+    border-radius: {{ section.settings.button_border_radius }}px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  #shopify-section-{{ section.id }} .btn-primary {
+    background: {{ section.settings.primary_button_bg }};
+    color: {{ section.settings.primary_button_text_color }};
+  }
+
+  #shopify-section-{{ section.id }} .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px {{ section.settings.primary_button_bg }}66;
+  }
+
+  #shopify-section-{{ section.id }} .btn-secondary {
+    background: {{ section.settings.secondary_button_bg }};
+    color: {{ section.settings.secondary_button_text_color }};
+    border: 3px solid {{ section.settings.secondary_button_text_color }};
+  }
+
+  #shopify-section-{{ section.id }} .btn-secondary:hover {
+    background: {{ section.settings.secondary_button_bg }}1a;
+    transform: translateY(-3px);
+  }
+
+  /* Right side - Product showcase */
+  #shopify-section-{{ section.id }} .product-showcase {
+    {% if section.settings.layout_style == 'centered' %}
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    {% else %}
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    {% endif %}
+    position: relative;
+    animation: slideInRight 1s ease-out;
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  #shopify-section-{{ section.id }} .product-grid {
+    {% if section.settings.layout_style == 'centered' %}
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 100%;
+    {% else %}
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    {% endif %}
+    position: relative;
+  }
+
+  #shopify-section-{{ section.id }} .product-card {
+    background: {{ section.settings.card_background }};
+    border-radius: {{ section.settings.card_border_radius }}px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    animation: fadeInUp 1s ease-out;
+    animation-fill-mode: both;
+    position: relative;
+    {% if section.settings.layout_style == 'centered' %}
+    flex: 0 1 auto;
+    min-width: 180px;
+    max-width: 220px;
+    {% endif %}
+  }
+
+  #shopify-section-{{ section.id }} .product-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+  }
+
+  #shopify-section-{{ section.id }} .product-card-link:hover {
+    text-decoration: none;
+  }
+
+  #shopify-section-{{ section.id }} .product-card:nth-child(1) { animation-delay: 0.2s; }
+  #shopify-section-{{ section.id }} .product-card:nth-child(2) { animation-delay: 0.4s; }
+  #shopify-section-{{ section.id }} .product-card:nth-child(3) { animation-delay: 0.6s; }
+  #shopify-section-{{ section.id }} .product-card:nth-child(4) { animation-delay: 0.8s; }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  #shopify-section-{{ section.id }} .product-card:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+  }
+
+  #shopify-section-{{ section.id }} .product-icon {
+    font-size: {{ section.settings.card_icon_size }}px;
+    margin-bottom: 15px;
+    display: block;
+  }
+
+  #shopify-section-{{ section.id }} .product-card-image {
+    width: 100%;
+    max-width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  #shopify-section-{{ section.id }} .product-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  #shopify-section-{{ section.id }} .product-card h3 {
+    font-size: {{ section.settings.card_title_size }}px;
+    color: {{ section.settings.card_title_color }};
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  #shopify-section-{{ section.id }} .product-card p {
+    font-size: {{ section.settings.card_text_size }}px;
+    color: {{ section.settings.card_text_color }};
+    text-shadow: none;
+  }
+
+  /* Decorative element */
+  #shopify-section-{{ section.id }} .decoration {
+    position: absolute;
+    bottom: -20px;
+    right: -30px;
+    font-size: {{ section.settings.decoration_size }}px;
+    {% if section.settings.enable_decoration_animation %}
+    animation: bounce 2s ease-in-out infinite;
+    {% endif %}
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  /* Lightning bolts */
+  {% if section.settings.show_lightning %}
+  #shopify-section-{{ section.id }} .lightning {
+    position: absolute;
+    font-size: 3rem;
+    animation: flash 3s ease-in-out infinite;
+  }
+
+  #shopify-section-{{ section.id }} .lightning-1 {
+    top: 10%;
+    left: 45%;
+    animation-delay: 0s;
+  }
+
+  #shopify-section-{{ section.id }} .lightning-2 {
+    bottom: 20%;
+    left: 40%;
+    animation-delay: 1.5s;
+  }
+
+  @keyframes flash {
+    0%, 90%, 100% { opacity: 0; }
+    95% { opacity: 1; }
+  }
+  {% endif %}
+
+  /* Sparkles */
+  {% if section.settings.show_sparkles %}
+  #shopify-section-{{ section.id }} .sparkle {
+    position: absolute;
+    color: {{ section.settings.sparkle_color }};
+    font-size: 1.5rem;
+    animation: twinkle 2s ease-in-out infinite;
+  }
+
+  #shopify-section-{{ section.id }} .sparkle-1 { top: 15%; left: 20%; animation-delay: 0s; }
+  #shopify-section-{{ section.id }} .sparkle-2 { top: 70%; right: 25%; animation-delay: 0.5s; }
+  #shopify-section-{{ section.id }} .sparkle-3 { top: 40%; right: 15%; animation-delay: 1s; }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(0); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+  {% endif %}
+
+  /* Responsive design */
+  @media (max-width: 1024px) {
+    #shopify-section-{{ section.id }} .content-wrapper {
+      flex-direction: column;
+      padding: 40px 30px;
+      justify-content: center;
+    }
+
+    #shopify-section-{{ section.id }} .text-content {
+      text-align: center;
+      margin-bottom: 40px;
+      max-width: 100%;
+    }
+
+    #shopify-section-{{ section.id }} .text-content h1 {
+      font-size: {{ section.settings.heading_size | minus: 16 }}px;
+    }
+
+    #shopify-section-{{ section.id }} .cta-buttons {
+      justify-content: center;
+    }
+
+    #shopify-section-{{ section.id }} .product-grid {
+      gap: 20px;
+      {% if section.settings.layout_style != 'centered' %}
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      {% endif %}
+    }
+
+    #shopify-section-{{ section.id }} .product-card {
+      padding: 20px;
+      {% if section.settings.layout_style != 'centered' %}
+      min-width: 180px;
+      max-width: 220px;
+      {% endif %}
+    }
+  }
+
+  @media (max-width: 768px) {
+    #shopify-section-{{ section.id }} .pokemon-banner-container {
+      height: auto;
+      min-height: 600px;
+      padding: 40px 0;
+    }
+
+    #shopify-section-{{ section.id }} .text-content h1 {
+      font-size: {{ section.settings.heading_size | minus: 24 }}px;
+    }
+
+    #shopify-section-{{ section.id }} .text-content p {
+      font-size: {{ section.settings.subheading_size | minus: 4 }}px;
+    }
+
+    #shopify-section-{{ section.id }} .product-grid {
+      {% if section.settings.layout_style == 'centered' %}
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      {% else %}
+      grid-template-columns: 1fr;
+      {% endif %}
+      max-width: 100%;
+      gap: 15px;
+    }
+
+    #shopify-section-{{ section.id }} .product-card {
+      min-width: 150px;
+      max-width: 170px;
+      padding: 15px;
+    }
+
+    #shopify-section-{{ section.id }} .decoration {
+      font-size: {{ section.settings.decoration_size | minus: 32 }}px;
+      bottom: 10px;
+      right: 10px;
+    }
+  }
+</style>
+
+<div class="pokemon-banner-container">
+  <!-- Animated grid background -->
+  {% if section.settings.show_grid %}
+  <div class="grid-background"></div>
+  {% endif %}
+
+  <!-- Floating shapes -->
+  {% if section.settings.show_shapes %}
+  <div class="shape triangle shape-1"></div>
+  <div class="shape circle shape-2"></div>
+  <div class="shape triangle shape-3"></div>
+  <div class="shape circle shape-4"></div>
+  <div class="shape triangle shape-5"></div>
+  {% endif %}
+
+  <!-- Lightning effects -->
+  {% if section.settings.show_lightning %}
+  <div class="lightning lightning-1">{{ section.settings.lightning_icon }}</div>
+  <div class="lightning lightning-2">{{ section.settings.lightning_icon }}</div>
+  {% endif %}
+
+  <!-- Sparkles -->
+  {% if section.settings.show_sparkles %}
+  <div class="sparkle sparkle-1">{{ section.settings.sparkle_icon }}</div>
+  <div class="sparkle sparkle-2">{{ section.settings.sparkle_icon }}</div>
+  <div class="sparkle sparkle-3">{{ section.settings.sparkle_icon }}</div>
+  {% endif %}
+
+  <div class="content-wrapper">
+    <!-- Left side - Text content -->
+    <div class="text-content">
+      {% if section.settings.heading_before_highlight != blank or section.settings.heading_highlight != blank or section.settings.heading_after_highlight != blank %}
+      <h1>
+        {{ section.settings.heading_before_highlight }}
+        {% if section.settings.heading_highlight != blank %}
+        <span class="highlight">{{ section.settings.heading_highlight }}</span>
+        {% endif %}
+        {{ section.settings.heading_after_highlight }}
+      </h1>
+      {% endif %}
+
+      {% if section.settings.subheading != blank %}
+      <p>{{ section.settings.subheading }}</p>
+      {% endif %}
+
+      <div class="cta-buttons">
+        {% if section.settings.primary_button_text != blank %}
+        <a id="btn-hero" href="{{ section.settings.primary_button_link }}" class="btn btn-primary" >
+          {{ section.settings.primary_button_text }}
+        </a>
+        {% endif %}
+
+        {% if section.settings.secondary_button_text != blank %}
+        <a href="{{ section.settings.secondary_button_link }}" class="btn btn-secondary">
+          {{ section.settings.secondary_button_text }}
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right side - Product showcase -->
+    {% if section.settings.show_product_cards %}
+    <div class="product-showcase">
+      <div class="product-grid">
+        {% for block in section.blocks %}
+          {% if block.type == 'product_card' %}
+          <div class="product-card" {{ block.shopify_attributes }}>
+            {% if block.settings.link != blank %}
+            <a href="{{ block.settings.link }}" class="product-card-link">
+            {% endif %}
+              {% if block.settings.card_image != blank %}
+                <img src="{{ block.settings.card_image | img_url: '200x200', crop: 'center' }}" alt="{{ block.settings.title }}" class="product-card-image">
+              {% elsif block.settings.icon != blank %}
+                <span class="product-icon">{{ block.settings.icon }}</span>
+              {% endif %}
+              <h3>{{ block.settings.title }}</h3>
+              <p>{{ block.settings.description }}</p>
+            {% if block.settings.link != blank %}
+            </a>
+            {% endif %}
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if section.settings.decoration_icon != blank %}
+      <div class="decoration">{{ section.settings.decoration_icon }}</div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Pokemon Hero Banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Banner Settings"
+    },
+    {
+      "type": "select",
+      "id": "layout_style",
+      "label": "Layout Style",
+      "options": [
+        {
+          "value": "split",
+          "label": "Split (Text Left, Cards Right)"
+        },
+        {
+          "value": "centered",
+          "label": "Centered (Text Top, Cards Bottom)"
+        }
+      ],
+      "default": "split",
+      "info": "Choose how content is arranged in the banner"
+    },
+    {
+      "type": "range",
+      "id": "banner_height",
+      "label": "Banner Height (px)",
+      "min": 300,
+      "max": 800,
+      "step": 50,
+      "default": 500
+    },
+    {
+      "type": "range",
+      "id": "content_width",
+      "label": "Content Max Width (px)",
+      "min": 1000,
+      "max": 1600,
+      "step": 100,
+      "default": 1400
+    },
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Optional: Use custom background image instead of gradient"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay Color",
+      "default": "#000000",
+      "info": "Color overlay on background image (helps text readability)"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay Opacity",
+      "min": 0,
+      "max": 0.9,
+      "step": 0.1,
+      "default": 0.3,
+      "info": "Darkness of overlay (0 = transparent, 0.9 = very dark)"
+    },
+    {
+      "type": "header",
+      "content": "Background Colors (Gradient)"
+    },
+    {
+      "type": "paragraph",
+      "content": "Used when no background image is selected"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_1",
+      "label": "Gradient Color 1",
+      "default": "#667eea"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_2",
+      "label": "Gradient Color 2",
+      "default": "#764ba2"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_3",
+      "label": "Gradient Color 3",
+      "default": "#f093fb"
+    },
+    {
+      "type": "header",
+      "content": "Grid Background"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_grid",
+      "label": "Show Grid Background",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_grid_animation",
+      "label": "Enable Grid Animation",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "grid_opacity",
+      "label": "Grid Opacity",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.1,
+      "default": 0.1
+    },
+    {
+      "type": "header",
+      "content": "Floating Shapes"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shapes",
+      "label": "Show Floating Shapes",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_shapes_animation",
+      "label": "Enable Shape Animation",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "shapes_opacity",
+      "label": "Shapes Opacity",
+      "min": 0.1,
+      "max": 0.5,
+      "step": 0.1,
+      "default": 0.3
+    },
+    {
+      "type": "color",
+      "id": "shape_color_1",
+      "label": "Triangle Color",
+      "default": "#FFD700"
+    },
+    {
+      "type": "color",
+      "id": "shape_color_2",
+      "label": "Circle Color",
+      "default": "#FF6B6B"
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading_before_highlight",
+      "label": "Heading (Before Highlight)",
+      "default": "Catch 'Em All at"
+    },
+    {
+      "type": "text",
+      "id": "heading_highlight",
+      "label": "Heading (Highlighted Text)",
+      "default": "PokéShop!"
+    },
+    {
+      "type": "text",
+      "id": "heading_after_highlight",
+      "label": "Heading (After Highlight)"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading Font Size (px)",
+      "min": 24,
+      "max": 80,
+      "step": 2,
+      "default": 64
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "highlight_color",
+      "label": "Highlight Color",
+      "default": "#FFD700"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text Alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Subheading"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading Text",
+      "default": "Your ultimate destination for Pokémon cards, figures, and exclusive collectibles. Join thousands of trainers worldwide!"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "label": "Subheading Font Size (px)",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "default": 21
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Primary Button"
+    },
+    {
+      "type": "text",
+      "id": "primary_button_text",
+      "label": "Button Text",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "primary_button_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_bg",
+      "label": "Button Background",
+      "default": "#FFD700"
+    },
+    {
+      "type": "color",
+      "id": "primary_button_text_color",
+      "label": "Button Text Color",
+      "default": "#333333"
+    },
+    {
+      "type": "header",
+      "content": "Secondary Button"
+    },
+    {
+      "type": "text",
+      "id": "secondary_button_text",
+      "label": "Button Text",
+      "default": "View Collection"
+    },
+    {
+      "type": "url",
+      "id": "secondary_button_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_bg",
+      "label": "Button Background",
+      "default": "transparent"
+    },
+    {
+      "type": "color",
+      "id": "secondary_button_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Button Style"
+    },
+    {
+      "type": "range",
+      "id": "button_text_size",
+      "label": "Button Text Size (px)",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button Border Radius (px)",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Product Cards"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_cards",
+      "label": "Show Product Cards",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card Background",
+      "default": "rgba(255,255,255,0.95)"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Card Border Radius (px)",
+      "min": 0,
+      "max": 40,
+      "step": 5,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "card_icon_size",
+      "label": "Card Icon Size (px)",
+      "min": 24,
+      "max": 64,
+      "step": 4,
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "label": "Card Title Size (px)",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "default": 19
+    },
+    {
+      "type": "color",
+      "id": "card_title_color",
+      "label": "Card Title Color",
+      "default": "#333333"
+    },
+    {
+      "type": "range",
+      "id": "card_text_size",
+      "label": "Card Text Size (px)",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "card_text_color",
+      "label": "Card Text Color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Decorations"
+    },
+    {
+      "type": "text",
+      "id": "decoration_icon",
+      "label": "Decoration Icon (Emoji)",
+      "default": "⚡",
+      "info": "Use emoji or leave blank"
+    },
+    {
+      "type": "range",
+      "id": "decoration_size",
+      "label": "Decoration Size (px)",
+      "min": 48,
+      "max": 128,
+      "step": 8,
+      "default": 96
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_decoration_animation",
+      "label": "Enable Decoration Animation",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_lightning",
+      "label": "Show Lightning",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "lightning_icon",
+      "label": "Lightning Icon (Emoji)",
+      "default": "⚡"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sparkles",
+      "label": "Show Sparkles",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "sparkle_icon",
+      "label": "Sparkle Icon (Emoji)",
+      "default": "✨"
+    },
+    {
+      "type": "color",
+      "id": "sparkle_color",
+      "label": "Sparkle Color",
+      "default": "#FFD700"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_card",
+      "name": "Product Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "card_image",
+          "label": "Card Image",
+          "info": "Optional: Use image instead of emoji icon"
+        },
+        {
+          "type": "text",
+          "id": "icon",
+          "label": "Icon (Emoji)",
+          "default": "🎴",
+          "info": "Used if no image is selected"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Card Title",
+          "default": "Trading Cards"
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Card Description",
+          "default": "Rare & exclusive booster packs"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Card Link",
+          "info": "Link to collection, product, or page"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Pokemon Hero Banner",
+      "blocks": [
+        {
+          "type": "product_card",
+          "settings": {
+            "icon": "🎴",
+            "title": "Trading Cards",
+            "description": "Rare & exclusive booster packs"
+          }
+        },
+        {
+          "type": "product_card",
+          "settings": {
+            "icon": "🎯",
+            "title": "Collectibles",
+            "description": "Limited edition figures"
+          }
+        },
+        {
+          "type": "product_card",
+          "settings": {
+            "icon": "⭐",
+            "title": "New Arrivals",
+            "description": "Latest releases weekly"
+          }
+        },
+        {
+          "type": "product_card",
+          "settings": {
+            "icon": "🎁",
+            "title": "Gift Sets",
+            "description": "Perfect for any trainer"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
