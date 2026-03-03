@@ -1,0 +1,392 @@
+<section
+  class="crossover-table-section"
+  style="background-color: {{ section.settings.section_bg }}; padding: 40px 0;"
+>
+  <div class="page-width">
+    <h2 style="text-align:center; margin-bottom: 30px;">
+      {{ section.settings.heading }}
+    </h2>
+
+    {% assign current_group = '' %}
+
+    <div class="table-wrapper">
+      <table class="crossover-table">
+        <thead style="background: {{ section.settings.header_bg }}; color: {{ section.settings.header_text }};">
+          <tr>
+            <th>Lock N Stitch Part #</th>
+            <th>Terox Part #</th>
+            <th>Product</th>
+            <th>Description</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for block in section.blocks %}
+            {% if block.settings.group != current_group %}
+              <tr
+                class="group-row"
+                style="background: {{ section.settings.group_bg }}; color: {{ section.settings.group_text }};"
+              >
+                <td colspan="5">{{ block.settings.group }}</td>
+              </tr>
+              {% assign current_group = block.settings.group %}
+            {% endif %}
+
+            {% assign product = all_products[block.settings.product] %}
+
+            <tr style="background: {{ section.settings.row_bg }};">
+              <td data-label="Lock N Stitch Part #">
+                {{ block.settings.lock_part }}
+              </td>
+
+              <td data-label="Terox Part #">
+                {{ block.settings.terox_part }}
+              </td>
+
+              <td data-label="Product">
+                {% if product %}
+                  <div class="product-cell">
+                    <img
+                      src="{{ product.featured_image | image_url: width: 80 }}"
+                      alt="{{ product.title }}"
+                      width="60"
+                      height="60"
+                    >
+                    <div class="product-info">
+                      <div class="product-title">{{ product.title }}</div>
+                      <div class="product-price">
+                        {{ product.price | money }}
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              </td>
+
+              <td data-label="Description">
+                {{ block.settings.description }}
+              </td>
+
+              <td data-label="Action">
+                {% if product %}
+                  <button
+                    class="add-to-cart-btn"
+                    data-variant-id="{{ product.first_available_variant.id }}"
+                    style="
+                      background: {{ section.settings.button_bg }};
+                      color: {{ section.settings.button_text }};
+                    "
+                  >
+                    Add to Cart
+                  </button>
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ================= DESKTOP (UNCHANGED) ================= */
+
+  .crossover-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .crossover-table th,
+  .crossover-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    vertical-align: middle;
+  }
+
+  .group-row td {
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 14px;
+  }
+
+  .product-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .product-cell img {
+    border-radius: 6px;
+  }
+
+  .product-title {
+    font-weight: 600;
+  }
+
+  .product-price {
+    font-size: 14px;
+    opacity: 0.8;
+  }
+
+  .add-to-cart-btn {
+    padding: 8px 14px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.2s ease;
+  }
+
+  .add-to-cart-btn:hover {
+    opacity: 0.85;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  /* ================= PREMIUM MOBILE ================= */
+
+  @media (max-width: 768px) {
+
+    .crossover-table thead {
+      display: none;
+    }
+
+    .crossover-table,
+    .crossover-table tbody,
+    .crossover-table tr,
+    .crossover-table td {
+      display: block;
+      width: 100%;
+    }
+
+    /* Premium Card Style */
+    .crossover-table tr {
+      margin-bottom: 24px;
+      border: none;
+      padding: 20px;
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s ease;
+    }
+
+    .crossover-table tr:hover {
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .crossover-table td {
+      border: none;
+      padding: 10px 0;
+      position: relative;
+    }
+
+    /* Elegant Labels */
+    .crossover-table td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      opacity: 0.55;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .product-cell {
+      gap: 14px;
+    }
+
+    .product-cell img {
+      width: 72px;
+      height: 72px;
+      border-radius: 12px;
+    }
+
+    .product-title {
+      font-size: 15px;
+    }
+
+    .product-price {
+      font-size: 14px;
+      opacity: 0.7;
+    }
+
+    /* Premium Button */
+    .add-to-cart-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      transition: all 0.25s ease;
+    }
+
+    .add-to-cart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.15);
+    }
+
+    .group-row td {
+      text-align: center;
+      border-radius: 12px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+
+    document.querySelectorAll('.add-to-cart-btn').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var variantId = this.dataset.variantId;
+        var btn = this;
+
+        btn.disabled = true;
+        btn.textContent = 'Adding...';
+
+        // Step 1: Add item to Shopify cart
+        fetch('/cart/add.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: variantId, quantity: 1 }),
+        })
+        .then(function (r) {
+          if (!r.ok) throw new Error('Failed to add to cart');
+          return r.json();
+        })
+        .then(function () {
+
+          btn.textContent = '✓ Added!';
+
+          // Step 2: Re-fetch the fully rendered cart-drawer section
+          fetch('/?section_id=cart-drawer')
+            .then(function (r) { return r.text(); })
+            .then(function (html) {
+
+              var parser = new DOMParser();
+              var doc = parser.parseFromString(html, 'text/html');
+
+              // Replace the entire drawer inner content
+              var freshInner = doc.querySelector('.m-cart-drawer__inner');
+              var liveInner  = document.querySelector('.m-cart-drawer__inner');
+              if (freshInner && liveInner) {
+                liveInner.innerHTML = freshInner.innerHTML;
+              } else {
+                // Fallback: replace parts individually
+                var freshItems = doc.querySelector('m-cart-drawer-items');
+                var liveItems  = document.querySelector('m-cart-drawer-items');
+                if (freshItems && liveItems) liveItems.innerHTML = freshItems.innerHTML;
+
+                var freshFooter = doc.querySelector('#MinimogCartDrawerFooter');
+                var liveFooter  = document.querySelector('#MinimogCartDrawerFooter');
+                if (freshFooter && liveFooter) liveFooter.innerHTML = freshFooter.innerHTML;
+              }
+
+              // Step 3: Update cart count badge
+              fetch('/cart.js')
+                .then(function (r) { return r.json(); })
+                .then(function (cart) {
+
+                  // Update count badges
+                  document.querySelectorAll('.m-cart-count-bubble, .m-cart-count').forEach(function (el) {
+                    el.textContent = cart.item_count;
+                    el.classList.remove('m:hidden', 'hidden');
+                    el.style.display = '';
+                  });
+
+                  // ── THE KEY FIX ──────────────────────────────────────────
+                  // Minimog adds 'm-cart--empty' to the drawer when cart is empty.
+                  // This class sets the footer to display:none via CSS.
+                  // Remove it so the Checkout + View Cart buttons become visible.
+                  var cartDrawer = document.querySelector('.m-cart-drawer');
+                  if (cartDrawer && cart.item_count > 0) {
+                    cartDrawer.classList.remove('m-cart--empty');
+                  }
+                  // ─────────────────────────────────────────────────────────
+
+                  // Step 4: Open the drawer
+                  var drawerInner = document.querySelector('.m-cart-drawer__inner');
+                  if (drawerInner) {
+                    var drawerRoot = drawerInner.closest('[class*="m-cart-drawer"]') || drawerInner.parentElement;
+                    if (drawerRoot) {
+                      drawerRoot.classList.add('is-open', 'active', 'm-open');
+                      drawerRoot.classList.remove('m-cart--empty');
+                      drawerRoot.removeAttribute('hidden');
+                    }
+                  }
+
+                  // Step 5: Fire Minimog's cart:refresh as safety net
+                  document.documentElement.dispatchEvent(
+                    new CustomEvent('cart:refresh', {
+                      bubbles: true,
+                      detail: { open: true }
+                    })
+                  );
+
+                });
+
+            })
+            .catch(function () {
+              document.documentElement.dispatchEvent(
+                new CustomEvent('cart:refresh', {
+                  bubbles: true,
+                  detail: { open: true }
+                })
+              );
+            });
+
+          setTimeout(function () {
+            btn.textContent = 'Add to Cart';
+            btn.disabled = false;
+          }, 2000);
+
+        })
+        .catch(function (err) {
+          console.error('Add to cart error:', err);
+          btn.textContent = 'Error – Retry';
+          btn.disabled = false;
+        });
+
+      });
+    });
+
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Crossover ",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Cross Over Table" },
+    { "type": "color", "id": "section_bg", "label": "Section Background", "default": "#ffffff" },
+    { "type": "color", "id": "header_bg", "label": "Header Background", "default": "#000000" },
+    { "type": "color", "id": "header_text", "label": "Header Text Color", "default": "#ffffff" },
+    { "type": "color", "id": "group_bg", "label": "Group Row Background", "default": "#f4f4f4" },
+    { "type": "color", "id": "group_text", "label": "Group Row Text Color", "default": "#000000" },
+    { "type": "color", "id": "row_bg", "label": "Table Row Background", "default": "#ffffff" },
+    { "type": "color", "id": "button_bg", "label": "Button Background", "default": "#000000" },
+    { "type": "color", "id": "button_text", "label": "Button Text Color", "default": "#ffffff" }
+  ],
+  "blocks": [
+    {
+      "type": "row",
+      "name": "Row",
+      "settings": [
+        { "type": "text", "id": "group", "label": "Group Name (PINS, TAPS, etc)" },
+        { "type": "text", "id": "lock_part", "label": "Lock N Stitch Part #" },
+        { "type": "text", "id": "terox_part", "label": "Terox Part #" },
+        { "type": "text", "id": "description", "label": "Description" },
+        { "type": "product", "id": "product", "label": "Select Shopify Product" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Crossover Table Advanced" }]
+}
+{% endschema %}
