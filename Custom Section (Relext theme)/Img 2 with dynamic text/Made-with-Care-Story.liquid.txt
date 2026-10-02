@@ -1,0 +1,525 @@
+{% comment %}
+  Made with Care / Brand Story Feature Section with Scroll Parallax
+  Tailored for Minimog 2.0 Theme compatibility.
+{% endcomment %}
+
+{%- style -%}
+  .section-{{ section.id }}-story {
+    background-color: {{ section.settings.bg_color }};
+    {% if section.settings.bg_pattern != blank %}
+      background-image: url('{{ section.settings.bg_pattern | image_url: width: 1920 }}');
+      background-size: {{ section.settings.pattern_size }};
+      background-repeat: repeat;
+      background-position: center;
+    {% endif %}
+    padding-top: {{ section.settings.padding_top_mobile }}px;
+    padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @media screen and (min-width: 768px) {
+    .section-{{ section.id }}-story {
+      padding-top: {{ section.settings.padding_top_desktop }}px;
+      padding-bottom: {{ section.settings.padding_bottom_desktop }}px;
+    }
+  }
+
+  .section-{{ section.id }}-story .story-container {
+    max-width: {{ section.settings.container_width }}px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .section-{{ section.id }}-story .story-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+  }
+
+  @media screen and (min-width: 992px) {
+    .section-{{ section.id }}-story .story-grid {
+      flex-direction: row;
+      gap: 40px;
+    }
+  }
+
+  /* Side Image Cards & Parallax Container */
+  .section-{{ section.id }}-story .story-image-card {
+    flex: 0 0 100%;
+    max-width: 100%;
+    width: 100%;
+    will-change: transform;
+    transition: transform 0.1s linear;
+  }
+
+  @media screen and (min-width: 992px) {
+    .section-{{ section.id }}-story .story-image-card {
+      flex: 0 0 {{ section.settings.image_card_width }}%;
+      max-width: {{ section.settings.image_card_width }}%;
+    }
+  }
+
+  .section-{{ section.id }}-story .story-image-wrapper {
+    position: relative;
+    width: 100%;
+    border-radius: {{ section.settings.image_border_radius }}px;
+    overflow: hidden;
+    aspect-ratio: {{ section.settings.image_aspect_ratio }};
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  }
+
+  .section-{{ section.id }}-story .story-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Middle Content Box */
+  .section-{{ section.id }}-story .story-content-box {
+    flex: 1 1 auto;
+    text-align: center;
+    max-width: 620px;
+    margin: 0 auto;
+    z-index: 2;
+  }
+
+  .section-{{ section.id }}-story .story-heading {
+    font-family: var(--font-heading-family, inherit);
+    font-weight: var(--font-heading-weight, 500);
+    color: {{ section.settings.heading_color }};
+    font-size: {{ section.settings.heading_size_mobile }}px;
+    line-height: 1.25;
+    margin: 0 0 16px 0;
+  }
+
+  @media screen and (min-width: 768px) {
+    .section-{{ section.id }}-story .story-heading {
+      font-size: {{ section.settings.heading_size_desktop }}px;
+    }
+  }
+
+  .section-{{ section.id }}-story .story-text {
+    font-family: var(--font-body-family, inherit);
+    color: {{ section.settings.text_color }};
+    font-size: {{ section.settings.text_size_mobile }}px;
+    line-height: 1.6;
+    margin: 0 0 28px 0;
+  }
+
+  @media screen and (min-width: 768px) {
+    .section-{{ section.id }}-story .story-text {
+      font-size: {{ section.settings.text_size_desktop }}px;
+    }
+  }
+
+  /* CTA Button */
+  .section-{{ section.id }}-story .story-btn {
+    display: inline-block;
+    padding: 12px 32px;
+    background-color: {{ section.settings.btn_bg_color }};
+    color: {{ section.settings.btn_text_color }};
+    border-radius: {{ section.settings.btn_border_radius }}px;
+    font-family: var(--font-body-family, inherit);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    border: 1px solid {{ section.settings.btn_bg_color }};
+  }
+
+  .section-{{ section.id }}-story .story-btn:hover {
+    background-color: {{ section.settings.btn_hover_bg_color }};
+    color: {{ section.settings.btn_hover_text_color }};
+    border-color: {{ section.settings.btn_hover_bg_color }};
+    transform: translateY(-2px);
+  }
+{%- endstyle -%}
+
+<div class="section-{{ section.id }}-story" id="StorySection-{{ section.id }}">
+  <div class="story-container">
+    <div class="story-grid">
+      
+      <!-- Left Image (Moves Up on Scroll) -->
+      <div class="story-image-card story-parallax-left" id="ParallaxLeft-{{ section.id }}">
+        <div class="story-image-wrapper">
+          {% if section.settings.left_image != blank %}
+            <img
+              src="{{ section.settings.left_image | image_url: width: 800 }}"
+              alt="{{ section.settings.left_image.alt | escape | default: section.settings.heading }}"
+              loading="lazy"
+            >
+          {% else %}
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Center Content Box -->
+      <div class="story-content-box">
+        {% if section.settings.heading != blank %}
+          <h2 class="story-heading">
+            {{ section.settings.heading }}
+          </h2>
+        {% endif %}
+
+        {% if section.settings.text != blank %}
+          <div class="story-text">
+            {{ section.settings.text }}
+          </div>
+        {% endif %}
+
+        {% if section.settings.btn_label != blank %}
+          <a href="{{ section.settings.btn_link }}" class="story-btn">
+            {{ section.settings.btn_label }}
+          </a>
+        {% endif %}
+      </div>
+
+      <!-- Right Image (Moves Down on Scroll) -->
+      <div class="story-image-card story-parallax-right" id="ParallaxRight-{{ section.id }}">
+        <div class="story-image-wrapper">
+          {% if section.settings.right_image != blank %}
+            <img
+              src="{{ section.settings.right_image | image_url: width: 800 }}"
+              alt="{{ section.settings.right_image.alt | escape | default: section.settings.heading }}"
+              loading="lazy"
+            >
+          {% else %}
+            {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    function initParallax() {
+      const section = document.getElementById('StorySection-{{ section.id }}');
+      const leftImg = document.getElementById('ParallaxLeft-{{ section.id }}');
+      const rightImg = document.getElementById('ParallaxRight-{{ section.id }}');
+
+      if (!section || !leftImg || !rightImg) return;
+
+      let ticking = false;
+      const speed = {{ section.settings.parallax_speed | default: 30 }};
+
+      function updateParallax() {
+        const rect = section.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+
+        // Check if section is currently within view
+        if (rect.top <= windowHeight && rect.bottom >= 0) {
+          // Normalize scroll progress through section (-1 to 1)
+          const centerOffset = (rect.top + rect.height / 2) - (windowHeight / 2);
+          const normalized = centerOffset / (windowHeight / 2);
+
+          if (window.innerWidth >= 992) {
+            const translateYLeft = normalized * speed;
+            const translateYRight = -normalized * speed;
+
+            leftImg.style.transform = `translate3d(0, ${translateYLeft}px, 0)`;
+            rightImg.style.transform = `translate3d(0, ${translateYRight}px, 0)`;
+          } else {
+            leftImg.style.transform = 'none';
+            rightImg.style.transform = 'none';
+          }
+        }
+        ticking = false;
+      }
+
+      function onScroll() {
+        if (!ticking) {
+          requestAnimationFrame(updateParallax);
+          ticking = true;
+        }
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      updateParallax();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initParallax);
+    } else {
+      initParallax();
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Made with Care Story",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "range",
+      "id": "container_width",
+      "min": 1000,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "label": "Container Max Width",
+      "default": 1400
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background Color",
+      "default": "#fdf5ee"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_pattern",
+      "label": "Background Pattern Graphic",
+      "info": "Upload seamless line-art background pattern image."
+    },
+    {
+      "type": "select",
+      "id": "pattern_size",
+      "label": "Pattern Tile Size",
+      "options": [
+        { "value": "auto", "label": "Original" },
+        { "value": "300px", "label": "Small" },
+        { "value": "500px", "label": "Medium" },
+        { "value": "700px", "label": "Large" }
+      ],
+      "default": "500px"
+    },
+    {
+      "type": "header",
+      "content": "Images & Parallax Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "left_image",
+      "label": "Left Side Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "right_image",
+      "label": "Right Side Image"
+    },
+    {
+      "type": "range",
+      "id": "parallax_speed",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "Scroll Parallax Movement Distance",
+      "default": 30,
+      "info": "Higher values increase the floating up/down movement on scroll."
+    },
+    {
+      "type": "range",
+      "id": "image_card_width",
+      "min": 20,
+      "max": 35,
+      "step": 1,
+      "unit": "%",
+      "label": "Image Card Width (Desktop)",
+      "default": 28
+    },
+    {
+      "type": "select",
+      "id": "image_aspect_ratio",
+      "label": "Image Aspect Ratio",
+      "options": [
+        { "value": "1 / 1", "label": "Square (1:1)" },
+        { "value": "4 / 3", "label": "Landscape (4:3)" },
+        { "value": "3 / 4", "label": "Portrait (3:4)" },
+        { "value": "1.1 / 1", "label": "Slight Soft Landscape" }
+      ],
+      "default": "1.1 / 1"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Image Border Radius",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Content Settings"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Made with Care. Inspired by Families"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Text Paragraph",
+      "default": "We Believe Every Baby Deserves Gentle Care And Every Parent Deserves Products They Can Trust. That's Why We Thoughtfully Curate Essentials That Bring Comfort, Quality, And Confidence To Everyday Routines."
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#2b231d"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#564c44"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "min": 24,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading Font Size (Desktop)",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "min": 20,
+      "max": 36,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading Font Size (Mobile)",
+      "default": 26
+    },
+    {
+      "type": "range",
+      "id": "text_size_desktop",
+      "min": 13,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Text Font Size (Desktop)",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "text_size_mobile",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Text Font Size (Mobile)",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Button Settings"
+    },
+    {
+      "type": "text",
+      "id": "btn_label",
+      "label": "Button Label",
+      "default": "Discover Our Story"
+    },
+    {
+      "type": "url",
+      "id": "btn_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "color",
+      "id": "btn_bg_color",
+      "label": "Button Background",
+      "default": "#e05838"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "btn_hover_bg_color",
+      "label": "Button Hover Background",
+      "default": "#c94627"
+    },
+    {
+      "type": "color",
+      "id": "btn_hover_text_color",
+      "label": "Button Hover Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "btn_border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Button Corner Radius",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Section Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top (Desktop)",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom (Desktop)",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top (Mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom (Mobile)",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "Made with Care Story"
+    }
+  ]
+}
+{% endschema %}
