@@ -1,0 +1,604 @@
+{% comment %}
+  Scroll-driven Image Zoom Banner Section
+  Compatible with Minimog 2.0 theme typography & styling conventions.
+{% endcomment %}
+
+{%- style -%}
+  .section-{{ section.id }}-scroll-banner {
+    position: relative;
+    width: 100%;
+    /* Extra track height creates scroll distance for the zoom animation */
+    height: {{ section.settings.track_height_desktop }}vh;
+    background-color: {{ section.settings.section_bg_color }};
+    {% if section.settings.pattern_bg_image != blank %}
+      background-image: url('{{ section.settings.pattern_bg_image | image_url: width: 1920 }}');
+      background-size: cover;
+      background-position: center;
+      background-repeat: repeat;
+    {% endif %}
+  }
+
+  /* Sticky Viewport Container */
+  .section-{{ section.id }}-scroll-banner .szb-sticky-wrapper {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Side Bars shown in initial scroll frames */
+  .section-{{ section.id }}-scroll-banner .szb-side-bars {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 1;
+    opacity: calc(1 - var(--szb-progress, 0) * 2);
+    transition: opacity 0.1s linear;
+  }
+
+  .section-{{ section.id }}-scroll-banner .szb-side-bar-left,
+  .section-{{ section.id }}-scroll-banner .szb-side-bar-right {
+    height: {{ section.settings.initial_height_desktop }}vh;
+    width: 180px;
+    background-color: {{ section.settings.side_bars_color }};
+    opacity: {{ section.settings.side_bars_opacity | divided_by: 100.0 }};
+  }
+
+  /* Scaling Frame */
+  .section-{{ section.id }}-scroll-banner .szb-media-frame {
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+    border-radius: calc({{ section.settings.border_radius }}px * (1 - var(--szb-progress, 0)));
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    will-change: width, height, transform;
+    
+    /* Calculate dynamic dimensions based on scroll progress */
+    width: calc({{ section.settings.initial_width_desktop }}% + (100% - {{ section.settings.initial_width_desktop }}%) * var(--szb-progress, 0));
+    height: calc({{ section.settings.initial_height_desktop }}vh + (100vh - {{ section.settings.initial_height_desktop }}vh) * var(--szb-progress, 0));
+  }
+
+  /* Internal Image Scaling */
+  .section-{{ section.id }}-scroll-banner .szb-image-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .section-{{ section.id }}-scroll-banner .szb-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: {{ section.settings.image_position }};
+    transform: scale(calc(1 + ({{ section.settings.max_image_zoom | divided_by: 100.0 }} - 1) * var(--szb-progress, 0)));
+    transition: transform 0.05s linear;
+    will-change: transform;
+  }
+
+  /* Overlay */
+  .section-{{ section.id }}-scroll-banner .szb-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: {{ section.settings.overlay_color }};
+    opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+    z-index: 3;
+  }
+
+  /* Content Overlay Box */
+  .section-{{ section.id }}-scroll-banner .szb-content-box {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    justify-content: {{ section.settings.text_vertical_position }};
+    align-items: {{ section.settings.text_horizontal_position }};
+    padding: 40px 20px;
+    text-align: {{ section.settings.text_alignment }};
+    box-sizing: border-box;
+  }
+
+  /* Subtitle / Highlight Badge Styling */
+  .section-{{ section.id }}-scroll-banner .szb-subtitle-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background-color: {{ section.settings.badge_bg_color }};
+    color: {{ section.settings.badge_text_color }};
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 4px;
+    margin-top: 8px;
+    letter-spacing: 0.02em;
+    font-family: inherit;
+  }
+
+  .section-{{ section.id }}-scroll-banner .szb-heading {
+    color: {{ section.settings.heading_color }};
+    font-size: {{ section.settings.heading_size_desktop }}px;
+    line-height: 1.2;
+    margin: 0 0 8px 0;
+    font-family: inherit;
+    font-weight: 400;
+  }
+
+  .section-{{ section.id }}-scroll-banner .szb-description {
+    color: {{ section.settings.description_color }};
+    font-size: 16px;
+    line-height: 1.5;
+    max-width: 580px;
+    margin: 12px 0 0 0;
+    font-family: inherit;
+  }
+
+  .section-{{ section.id }}-scroll-banner .szb-btn {
+    display: inline-block;
+    margin-top: 24px;
+    padding: 12px 32px;
+    background-color: {{ section.settings.btn_bg_color }};
+    color: {{ section.settings.btn_text_color }};
+    border-radius: {{ section.settings.btn_border_radius }}px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+  }
+
+  .section-{{ section.id }}-scroll-banner .szb-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+
+  /* Mobile Responsive Tweaks */
+  @media screen and (max-width: 768px) {
+    .section-{{ section.id }}-scroll-banner {
+      height: {{ section.settings.track_height_mobile }}vh;
+    }
+
+    .section-{{ section.id }}-scroll-banner .szb-media-frame {
+      width: calc({{ section.settings.initial_width_mobile }}% + (100% - {{ section.settings.initial_width_mobile }}%) * var(--szb-progress, 0));
+      height: calc({{ section.settings.initial_height_mobile }}vh + (100vh - {{ section.settings.initial_height_mobile }}vh) * var(--szb-progress, 0));
+    }
+
+    .section-{{ section.id }}-scroll-banner .szb-heading {
+      font-size: {{ section.settings.heading_size_mobile }}px;
+    }
+
+    .section-{{ section.id }}-scroll-banner .szb-side-bars {
+      display: none;
+    }
+  }
+{%- endstyle -%}
+
+<div class="section-{{ section.id }}-scroll-banner" id="SZBSection-{{ section.id }}">
+  <div class="szb-sticky-wrapper">
+    
+    {% if section.settings.show_side_bars %}
+      <div class="szb-side-bars">
+        <div class="szb-side-bar-left"></div>
+        <div class="szb-side-bar-right"></div>
+      </div>
+    {% endif %}
+
+    <div class="szb-media-frame" id="SZBFrame-{{ section.id }}">
+      <div class="szb-image-container">
+        {% if section.settings.desktop_image != blank %}
+          <picture>
+            {% if section.settings.mobile_image != blank %}
+              <source media="(max-width: 768px)" srcset="{{ section.settings.mobile_image | image_url: width: 800 }}">
+            {% endif %}
+            <img
+              src="{{ section.settings.desktop_image | image_url: width: 2000 }}"
+              alt="{{ section.settings.heading | escape }}"
+              class="szb-image"
+              loading="lazy"
+            >
+          </picture>
+        {% else %}
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'szb-image placeholder-svg' }}
+        {% endif %}
+      </div>
+
+      <div class="szb-overlay"></div>
+
+      <div class="szb-content-box">
+        {% if section.settings.heading != blank %}
+          <h2 class="szb-heading">
+            {{ section.settings.heading }}
+          </h2>
+        {% endif %}
+
+        {% if section.settings.badge_text != blank %}
+          <div>
+            <span class="szb-subtitle-badge">
+              {{ section.settings.badge_text }}
+            </span>
+          </div>
+        {% endif %}
+
+        {% if section.settings.description != blank %}
+          <div class="szb-description">
+            {{ section.settings.description }}
+          </div>
+        {% endif %}
+
+        {% if section.settings.button_text != blank %}
+          <div>
+            <a href="{{ section.settings.button_link }}" class="szb-btn">
+              {{ section.settings.button_text }}
+            </a>
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    function initScrollZoom() {
+      const section = document.getElementById('SZBSection-{{ section.id }}');
+      if (!section) return;
+
+      let ticking = false;
+
+      function updateProgress() {
+        const rect = section.getBoundingClientRect();
+        const totalScrollable = section.offsetHeight - window.innerHeight;
+
+        if (totalScrollable <= 0) return;
+
+        // Calculate progress from 0 (top of section hits top of window) to 1 (bottom hits bottom)
+        let progress = -rect.top / totalScrollable;
+        progress = Math.max(0, Math.min(1, progress));
+
+        section.style.setProperty('--szb-progress', progress.toFixed(4));
+        ticking = false;
+      }
+
+      function onScroll() {
+        if (!ticking) {
+          requestAnimationFrame(updateProgress);
+          ticking = true;
+        }
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      updateProgress();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initScrollZoom);
+    } else {
+      initScrollZoom();
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Scroll Zoom Banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Images & Visuals"
+    },
+    {
+      "type": "image_picker",
+      "id": "desktop_image",
+      "label": "Desktop Banner Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile Banner Image (Optional)"
+    },
+    {
+      "type": "image_picker",
+      "id": "pattern_bg_image",
+      "label": "Background Pattern Image (Optional)"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image Focal Point",
+      "options": [
+        { "value": "top center", "label": "Top Center" },
+        { "value": "center center", "label": "Center" },
+        { "value": "bottom center", "label": "Bottom Center" }
+      ],
+      "default": "center center"
+    },
+    {
+      "type": "header",
+      "content": "Scroll & Zoom Behavior"
+    },
+    {
+      "type": "range",
+      "id": "track_height_desktop",
+      "min": 150,
+      "max": 400,
+      "step": 10,
+      "unit": "vh",
+      "label": "Scroll Track Height (Desktop)",
+      "default": 250,
+      "info": "Controls how much scroll distance is required to complete the zoom."
+    },
+    {
+      "type": "range",
+      "id": "track_height_mobile",
+      "min": 120,
+      "max": 300,
+      "step": 10,
+      "unit": "vh",
+      "label": "Scroll Track Height (Mobile)",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "initial_width_desktop",
+      "min": 30,
+      "max": 90,
+      "step": 2,
+      "unit": "%",
+      "label": "Starting Frame Width (Desktop)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "initial_height_desktop",
+      "min": 30,
+      "max": 90,
+      "step": 2,
+      "unit": "vh",
+      "label": "Starting Frame Height (Desktop)",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "initial_width_mobile",
+      "min": 50,
+      "max": 95,
+      "step": 5,
+      "unit": "%",
+      "label": "Starting Frame Width (Mobile)",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "initial_height_mobile",
+      "min": 40,
+      "max": 90,
+      "step": 5,
+      "unit": "vh",
+      "label": "Starting Frame Height (Mobile)",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "max_image_zoom",
+      "min": 100,
+      "max": 140,
+      "step": 2,
+      "unit": "%",
+      "label": "Inner Image Zoom Level",
+      "default": 114
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Starting Border Radius",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Side Decorative Bars (Optional)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_side_bars",
+      "label": "Show side bars during initial scroll state",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "side_bars_color",
+      "label": "Side Bars Color",
+      "default": "#56463c"
+    },
+    {
+      "type": "range",
+      "id": "side_bars_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Side Bars Opacity",
+      "default": 90
+    },
+    {
+      "type": "header",
+      "content": "Text Content & Badge"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Everyday Care, Made Simple"
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge / Highlight Text",
+      "default": "See Our Products in Action"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Label",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "header",
+      "content": "Text Alignment & Position"
+    },
+    {
+      "type": "select",
+      "id": "text_horizontal_position",
+      "label": "Horizontal Position",
+      "options": [
+        { "value": "flex-start", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "flex-end", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "text_vertical_position",
+      "label": "Vertical Position",
+      "options": [
+        { "value": "flex-start", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "flex-end", "label": "Bottom" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Typography & Colors"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "min": 20,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading Size (Desktop)",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "min": 18,
+      "max": 36,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading Size (Mobile)",
+      "default": 24
+    },
+    {
+      "type": "color",
+      "id": "section_bg_color",
+      "label": "Section Background",
+      "default": "#fdf7f0"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Description Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "badge_bg_color",
+      "label": "Badge Background Color",
+      "default": "#e05838"
+    },
+    {
+      "type": "color",
+      "id": "badge_text_color",
+      "label": "Badge Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "btn_bg_color",
+      "label": "Button Background",
+      "default": "#e05838"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "btn_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Button Border Radius",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "label": "Overlay Opacity",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "Scroll Zoom Banner"
+    }
+  ]
+}
+{% endschema %}
