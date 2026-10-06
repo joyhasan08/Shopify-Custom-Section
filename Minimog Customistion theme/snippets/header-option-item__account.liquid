@@ -1,0 +1,22 @@
+{% if shop.customer_accounts_enabled or shop.customer_accounts_optional %}
+  {% if display_by == 'icon' %}
+    <a
+      href="{{ routes.account_url }}"
+      class="m-header__account{% if box_size != blank %} {{ box_size }}{% endif %}"
+      aria-label="{{ 'layout.customer.account' | t  }}"
+    >
+      <span class="m-tooltip m:block m-tooltip--bottom m-tooltip--style-2">
+        {% render 'header-icon', icon_key: 'account', header_settings: header_settings, alt: 'layout.customer.account' | t %}
+        <span class="m-tooltip__content">{{ 'layout.customer.account' | t }}</span>
+      </span>
+    </a>
+  {% else %}
+    <a
+      href="{{ routes.account_url }}"
+      class="m-header__account-text{% if box_size != blank %} {{ box_size }}{% endif %}"
+      aria-label="{{ 'layout.customer.account' | t  }}"
+    >
+      {{ 'layout.customer.account' | t }}
+    </a>
+  {% endif %}
+{% endif %}

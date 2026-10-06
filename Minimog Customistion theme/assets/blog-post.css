@@ -1,0 +1,8 @@
+.m-blog-grid__button{display:flex;justify-content:center;align-items:center;width:100%;margin-top:30px}@media screen and (min-width: 1024px){.m-blog-grid__button{margin-top:40px}}@media screen and (min-width: 1536px){.m-blog-grid__button{margin-top:60px}}
+/* Slider mode: ensure wrapper uses flex so Swiper controls layout (no conflict with Content grid) */
+.m-blog-grid .swiper-container .m-mixed-layout__inner.swiper-wrapper{display:flex}
+/* Keep slider-controls (prev/next buttons) inside m-mixed-layout: positioning context so buttons don't show outside */
+.m-blog-grid .m-mixed-layout.m-slider-control-hover-inside{position:relative}
+/* Show navigation arrows when Show navigation is on */
+.m-blog-grid .m-slider-controls--show-nav .m-slider-controls__button-prev,
+.m-blog-grid .m-slider-controls--show-nav .m-slider-controls__button-next{display:flex!important}

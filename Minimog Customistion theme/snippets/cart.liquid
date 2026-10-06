@@ -1,0 +1,17 @@
+<a
+  href="{{ routes.cart_url }}"
+  class="m-cart-icon-bubble"
+  aria-label="{{ cart.item_count }}"
+>
+  <span class="m-tooltip m:block m-tooltip--bottom m-tooltip--style-2">
+    {% render 'header-icon', icon_key: 'cart', header_settings: header_settings, alt: 'layout.cart.title' | t %}
+    <span class="m-tooltip__content">{{ 'layout.cart.title' | t }}</span>
+  </span>
+  <m-cart-count class="m-cart-count-bubble m-cart-count{% if cart == empty %} m:hidden{% endif %}">
+    {%- if cart.item_count < 100 -%}
+      {{- cart.item_count -}}
+    {%- else -%}
+      99+
+    {%- endif -%}
+  </m-cart-count>
+</a>

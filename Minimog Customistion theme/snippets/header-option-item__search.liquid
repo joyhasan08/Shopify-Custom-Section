@@ -1,0 +1,45 @@
+{%- liquid
+  assign search_display = header_settings.search
+  assign main_class = 'm-header__search'
+
+  if icon_left == true
+    assign main_class = main_class | append: ' m-search-form--icon-left'
+  endif
+
+  if search_display == 'show_full'
+    assign main_class = main_class | append: ' m-search-form--full'
+  endif
+
+  if box_size != blank
+    assign main_class = main_class | append: ' ' | append: box_size
+  endif
+
+  assign main_class = main_class | append: ' m:flex m:items-center'
+-%}
+
+{% unless search_display == 'hide' %}
+  <m-search-popup class="{{ main_class }}" data-open-search-popup>
+    {% if icon_left == true %}
+      <button
+        class="m-search-form__button m:flex m:items-center"
+        aria-label="{{ 'general.search.placeholder_short' | t }}"
+      >
+        <span class="m-tooltip m:block m-tooltip--bottom m-tooltip--style-2">
+          {% render 'header-icon', icon_key: 'search', header_settings: header_settings, size_class: 'm-svg-icon--medium-small', alt: 'general.search.placeholder_short' | t %}
+          <span class="m-tooltip__content">{{ 'general.search.placeholder_short' | t }}</span>
+        </span>
+      </button>
+    {% endif %}
+    {%- if search_display == 'show_full' -%}
+      <span class="m-search-form__label">{{ 'general.search.placeholder' | t }}</span>
+    {%- endif -%}
+    {% if icon_left == blank or icon_left == false %}
+      <button type="submit" class="m-search-form__button" aria-label="{{ 'general.search.placeholder_short' | t }}">
+        <span class="m-tooltip m:block m-tooltip--bottom m-tooltip--style-2">
+          {% render 'header-icon', icon_key: 'search', header_settings: header_settings, size_class: 'm-svg-icon--medium-small', alt: 'general.search.placeholder_short' | t %}
+          <span class="m-tooltip__content">{{ 'general.search.placeholder_short' | t }}</span>
+        </span>
+      </button>
+    {% endif %}
+  </m-search-popup>
+{% endunless %}

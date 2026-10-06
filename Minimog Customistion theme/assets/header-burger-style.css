@@ -1,0 +1,319 @@
+/**
+ * Burger-style mobile header & menu drawer
+ * Uses theme dynamic color scheme (--color-background, --color-foreground, etc.)
+ * Use with header setting "Use burger style mobile menu".
+ */
+
+/* ========== Variables (layout only; colors from theme scheme) ========== */
+.m-header--burger-style {
+  --burger-sidebar-width: 300px;
+  --burger-transition: 300ms ease;
+}
+
+/* ========== Hamburger button (bun box style, theme colors) ========== */
+.m-header--burger-style .m-menu-button {
+  pointer-events: auto;
+}
+
+.m-header--burger-style .m-hamburger-box {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(var(--color-foreground), 0.25);
+  border-radius: 5px;
+  box-shadow: 0 0 0 1px rgba(var(--color-foreground), 0.1);
+  overflow: hidden;
+}
+
+.m-header--burger-style .m-hamburger-box__inner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -1.5px 0 0 -12.5px;
+  width: 25px;
+  height: 3px;
+  background: rgb(var(--color-foreground));
+}
+
+.m-header--burger-style .m-hamburger-box__inner::before,
+.m-header--burger-style .m-hamburger-box__inner::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgb(var(--color-foreground));
+}
+
+.m-header--burger-style .m-hamburger-box__inner::before {
+  top: -8px;
+}
+
+.m-header--burger-style .m-hamburger-box__inner::after {
+  top: 8px;
+}
+
+/* Hover shine */
+.m-header--burger-style .m-hamburger-box::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -45px;
+  width: 30px;
+  height: 75px;
+  background: rgba(var(--color-foreground), 0.2);
+  transform: rotate(25deg);
+  opacity: 0;
+  transition: left 300ms linear 50ms, opacity 20ms linear;
+}
+
+.m-header--burger-style .m-hamburger-box:hover::before {
+  opacity: 1;
+  left: 100px;
+}
+
+/* ========== Menu drawer – full-height sidebar, theme colors ========== */
+.m-header--burger-style #m-menu-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 999;
+  --menu-drawer-height: 100vh;
+}
+
+.m-header--burger-style .m-menu-drawer__wrapper {
+  width: var(--burger-sidebar-width);
+  max-width: calc(100% - 40px);
+  height: 100%;
+  background-color: rgb(var(--color-background));
+  transform: translateX(-100%);
+  transition: transform var(--burger-transition);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 29;
+}
+
+.m-header--burger-style #m-menu-drawer.open .m-menu-drawer__wrapper {
+  transform: translateX(0);
+}
+
+.m-header--burger-style .m-menu-drawer__backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(var(--color-foreground), 0.25);
+}
+
+.m-header--burger-style .m-menu-drawer__content {
+  padding-top: 0;
+  background-color: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
+}
+
+/* ========== Nav list – match your .nav-item (no item bg) ========== */
+.m-header--burger-style .m-menu-mobile {
+  padding: 4px 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* Parent item: flex-wrap so dropdown sits on next row (neca neca) */
+.m-header--burger-style .m-menu-mobile__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  border-top: 1px solid rgb(var(--color-border));
+  transition: box-shadow 150ms ease, border-color 40ms ease;
+}
+
+.m-header--burger-style .m-menu-mobile__item:first-child {
+  border-top: 1px solid rgb(var(--color-border));
+}
+
+
+.m-header--burger-style .m-menu-mobile__item:hover {
+  box-shadow: 0 0 12px 3px rgba(var(--color-foreground), 0.12);
+  z-index: 1;
+}
+
+/* First row: link + toggle side by side */
+.m-header--burger-style .m-menu-mobile__item > .m-menu-mobile__link {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.m-header--burger-style .m-menu-mobile__link {
+  color: rgb(var(--color-foreground));
+  font-size: calc(var(--font-base-size, 16) * 1px);
+  font-weight: inherit;
+  padding: 15px 25px !important;
+}
+
+.m-header--burger-style .m-menu-mobile__item > .m-menu-mobile__toggle-button {
+  flex: 0 0 48px;
+  min-height: 48px;
+}
+
+/* Arrowed: + on right – same size when open/closed */
+.m-header--burger-style .m-menu-mobile__item .m-menu-mobile__toggle-button {
+  position: relative;
+  color: rgb(var(--color-foreground-secondary));
+}
+
+.m-header--burger-style .m-menu-mobile__item .m-menu-mobile__toggle-button::after {
+  content: '+';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 400;
+}
+
+.m-header--burger-style .m-menu-mobile__item .m-menu-mobile__toggle-button svg {
+  display: none;
+}
+
+/* Selected (open): _ same size and position */
+.m-header--burger-style .m-menu-mobile__item.m-burger-submenu-open {
+  box-shadow: 0 0 12px 3px rgba(var(--color-foreground), 0.12);
+}
+
+.m-header--burger-style .m-menu-mobile__item.m-burger-submenu-open .m-menu-mobile__toggle-button::after {
+  content: '_';
+  font-size: 22px;
+}
+
+/* ========== Dropdown = below parent (neca neca), smooth slide open/close like slideDown/slideUp ========== */
+.m-header--burger-style .m-menu-mobile__item > .m-megamenu-mobile {
+  flex: 0 0 100%;
+  width: 100%;
+  position: static;
+  height: auto;
+  transform: none;
+  visibility: visible;
+  max-height: 0;
+  overflow: hidden;
+  background: transparent;
+  order: 10;
+  transition: max-height 0.5s ease;
+}
+
+.m-header--burger-style .m-menu-mobile__item.m-burger-submenu-open > .m-megamenu-mobile {
+  max-height: 1000px;
+}
+
+.m-header--burger-style .m-menu-mobile__item .m-megamenu-mobile__wrapper {
+  position: static;
+  transform: none;
+  overflow: visible;
+}
+
+.m-header--burger-style .m-menu-mobile__item .m-menu-mobile__back-button {
+  display: none;
+}
+
+.m-header--burger-style .m-menu-mobile__item .m-submenu-mobile {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  box-shadow: inset 0 -7px 12px rgba(var(--color-foreground), 0.08);
+}
+
+/* Sub-items: one per row (neca neca) */
+.m-header--burger-style .m-menu-mobile__item .m-submenu-mobile .m-menu-mobile__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  border-top: 1px solid rgb(var(--color-border));
+  overflow: hidden;
+}
+
+.m-header--burger-style .m-menu-mobile__item .m-submenu-mobile .m-menu-mobile__item:first-child {
+  border-top: none;
+}
+
+.m-header--burger-style .m-menu-mobile__item .m-submenu-mobile .m-menu-mobile__item:last-child {
+  border-bottom: none;
+}
+
+.m-header--burger-style .m-menu-mobile__item .m-submenu-mobile .m-menu-mobile__item:hover {
+  background: rgba(var(--color-foreground), 0.06);
+  box-shadow: none;
+}
+
+/* Sub-nav item – font/color from theme */
+.m-header--burger-style .m-menu-mobile__item .m-submenu-mobile .m-menu-mobile__link {
+  font-size: calc(var(--font-base-size, 16) * 1px);
+  font-weight: inherit;
+  color: rgb(var(--color-foreground-secondary));
+  padding: 11px 20px 10px 40px !important;
+}
+
+.m-header--burger-style .m-menu-mobile__item .m-submenu-mobile .m-menu-mobile__item:hover .m-menu-mobile__link {
+  color: rgb(var(--color-foreground));
+}
+
+/* Nested level-2 dropdown: full width below parent, smooth slide like slideDown/slideUp */
+.m-header--burger-style .m-submenu-mobile .m-menu-mobile__item > .m-megamenu-mobile {
+  flex: 0 0 100%;
+  width: 100%;
+  position: static;
+  max-height: 0;
+  overflow: hidden;
+  transform: none;
+  order: 10;
+  transition: max-height 0.5s ease;
+}
+
+.m-header--burger-style .m-submenu-mobile .m-menu-mobile__item.m-burger-submenu-open > .m-megamenu-mobile {
+  max-height: 800px;
+}
+
+.m-header--burger-style .m-submenu-mobile .m-menu-mobile__item > .m-menu-mobile__link {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.m-header--burger-style .m-submenu-mobile .m-menu-mobile__item > .m-menu-mobile__toggle-button {
+  flex: 0 0 48px;
+  min-height: 48px;
+}
+
+/* ========== Body slide when drawer open ========== */
+.m-header-burger-style-active.m-drawer-open main#MainContent {
+  margin-left: var(--burger-sidebar-width);
+  transition: margin-left var(--burger-transition);
+}
+
+.m-header-burger-style-active.m-drawer-open {
+  overflow: hidden;
+}
+
+/* ========== Customer / account block – do not overwrite login button color ========== */
+.m-header--burger-style .m-menu-customer {
+  color: rgb(var(--color-foreground));
+}
+
+.m-header--burger-style .m-menu-customer__label,
+.m-header--burger-style .m-menu-customer__name,
+.m-header--burger-style .m-menu-customer a {
+  color: inherit;
+}

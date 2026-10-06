@@ -1,0 +1,17 @@
+{% unless settings.product_compare_page == blank %}
+  <a
+    href="{{ pages[settings.product_compare_page].url }}"
+    class="m-header__compare{% if box_size != blank %} {{ box_size }}{% endif %}"
+    aria-label="{{ 'layout.compare.title' | t }}"
+  >
+    {% if display_by == 'icon' %}
+      <span class="m-tooltip m:block m-tooltip--bottom m-tooltip--style-2">
+        {% render 'header-icon', icon_key: 'compare', header_settings: header_settings, alt: 'layout.compare.title' | t %}
+        <span class="m-tooltip__content">{{ 'layout.compare.title' | t }}</span>
+      </span>
+    {% else %}
+      {{ 'layout.compare.title' | t }}
+    {% endif %}
+    <sup class="m-compare-count m:hidden"></sup>
+  </a>
+{% endunless %}

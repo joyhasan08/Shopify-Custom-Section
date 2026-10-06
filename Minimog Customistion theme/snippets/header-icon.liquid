@@ -1,0 +1,103 @@
+{% comment %}
+  Renders a header icon dynamically: default SVG, custom image, or custom URL.
+  Parameters:
+  - icon_key: 'cart' | 'account' | 'wishlist' | 'compare' | 'search'
+  - header_settings: section.settings (optional; if blank, default SVG is used)
+  - size_class: optional override (e.g. 'm-svg-icon--medium-small' for search)
+  - class: optional extra CSS class
+  - alt: optional alt text for img (defaults from locale)
+{% endcomment %}
+
+{% liquid
+  assign s = header_settings
+  assign key_prefix = icon_key | append: '_icon_'
+  assign type_id = key_prefix | append: 'type'
+  assign image_id = key_prefix | append: 'image'
+  assign url_id = key_prefix | append: 'url'
+  assign size_id = key_prefix | append: 'size'
+  assign custom_size_id = key_prefix | append: 'custom_size'
+
+  assign icon_type = s[type_id] | default: 'default'
+  assign icon_image = s[image_id]
+  assign icon_url = s[url_id]
+  assign icon_size_setting = s[size_id] | default: 'medium'
+  assign icon_custom_size = s[custom_size_id] | default: 24
+
+  if size_class != blank
+    assign size_class_final = size_class
+  else
+    case icon_size_setting
+      when 'small'
+        assign size_class_final = 'm-svg-icon'
+      when 'medium-small'
+        assign size_class_final = 'm-svg-icon--medium-small'
+      when 'large'
+        assign size_class_final = 'm-svg-icon--large'
+      when 'custom'
+        assign size_class_final = ''
+      else
+        if icon_key == 'search'
+          assign size_class_final = 'm-svg-icon--medium-small'
+        else
+          assign size_class_final = 'm-svg-icon--medium'
+        endif
+    endcase
+  endif
+
+  assign use_custom_image = false
+  assign custom_src = ''
+  if icon_type == 'image' and icon_image != blank
+    assign use_custom_image = true
+    assign custom_src = icon_image | image_url: width: 96
+  elsif icon_type == 'url' and icon_url != blank
+    assign use_custom_image = true
+    assign custom_src = icon_url
+  endif
+
+  assign size_style = ''
+  if icon_size_setting == 'custom' and icon_custom_size > 0
+    assign size_style = 'width:' | append: icon_custom_size | append: 'px;height:' | append: icon_custom_size | append: 'px;'
+  elsif use_custom_image and size_class_final == ''
+    assign size_style = 'width:' | append: icon_custom_size | append: 'px;height:' | append: icon_custom_size | append: 'px;'
+  endif
+%}
+
+{% if use_custom_image and custom_src != blank %}
+  {% comment %} theme-check-disable RemoteAsset {% endcomment %}
+  <img
+    src="{{ custom_src }}"
+    alt="{{ alt | default: '' }}"
+    class="m-header-icon-img {{ size_class_final }} {{ class }}"
+    loading="eager"
+    width="{{ icon_custom_size }}"
+    height="{{ icon_custom_size }}"
+    style="{{ size_style }}"
+  >
+  {% comment %} theme-check-enable RemoteAsset {% endcomment %}
+{% else %}
+  {% comment %} Default SVG per icon_key {% endcomment %}
+  {% case icon_key %}
+    {% when 'cart' %}
+      <svg class="{{ size_class_final }} {{ class }}" fill="currentColor" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="{{ size_style }}">
+        <path d="M352 128C352 57.42 294.579 0 224 0 153.42 0 96 57.42 96 128H0v304c0 44.183 35.817 80 80 80h288c44.183 0 80-35.817 80-80V128h-96zM224 48c44.112 0 80 35.888 80 80H144c0-44.112 35.888-80 80-80zm176 384c0 17.645-14.355 32-32 32H80c-17.645 0-32-14.355-32-32V176h48v40c0 13.255 10.745 24 24 24s24-10.745 24-24v-40h160v40c0 13.255 10.745 24 24 24s24-10.745 24-24v-40h48v256z"/>
+      </svg>
+    {% when 'account' %}
+      <svg class="{{ size_class_final }} {{ class }}" fill="currentColor" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="{{ size_style }}">
+        <path d="M313.6 304c-28.7 0-42.5 16-89.6 16-47.1 0-60.8-16-89.6-16C60.2 304 0 364.2 0 438.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-25.6c0-74.2-60.2-134.4-134.4-134.4zM400 464H48v-25.6c0-47.6 38.8-86.4 86.4-86.4 14.6 0 38.3 16 89.6 16 51.7 0 74.9-16 89.6-16 47.6 0 86.4 38.8 86.4 86.4V464zM224 288c79.5 0 144-64.5 144-144S303.5 0 224 0 80 64.5 80 144s64.5 144 144 144zm0-240c52.9 0 96 43.1 96 96s-43.1 96-96 96-96-43.1-96-96 43.1-96 96-96z"/>
+      </svg>
+    {% when 'wishlist' %}
+      <svg class="{{ size_class_final }} {{ class }}" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="{{ size_style }}">
+        <path d="M458.4 64.3C400.6 15.7 311.3 23 256 79.3 200.7 23 111.4 15.6 53.6 64.3-21.6 127.6-10.6 230.8 43 285.5l175.4 178.7c10 10.2 23.4 15.9 37.6 15.9 14.3 0 27.6-5.6 37.6-15.8L469 285.6c53.5-54.7 64.7-157.9-10.6-221.3zm-23.6 187.5L259.4 430.5c-2.4 2.4-4.4 2.4-6.8 0L77.2 251.8c-36.5-37.2-43.9-107.6 7.3-150.7 38.9-32.7 98.9-27.8 136.5 10.5l35 35.7 35-35.7c37.8-38.5 97.8-43.2 136.5-10.6 51.1 43.1 43.5 113.9 7.3 150.8z"/>
+      </svg>
+    {% when 'compare' %}
+      <svg class="{{ size_class_final }} {{ class }}" viewBox="0 0 15 13" fill="none" xmlns="http://www.w3.org/2000/svg" style="{{ size_style }}">
+        <path d="M14.4508 10.3623L12.2906 12.3584C12.0719 12.5589 11.8258 12.6045 11.5523 12.4951C11.2789 12.3857 11.1422 12.1852 11.1422 11.8936V10.7998H10.2945C10.2034 10.7998 10.1213 10.7633 10.0484 10.6904L7.58748 8.03809L8.62654 6.91699L10.814 9.26855H11.1422V7.95605C11.1422 7.66439 11.2789 7.46387 11.5523 7.35449C11.8258 7.22689 12.0719 7.27246 12.2906 7.49121L14.4508 9.43262C14.5784 9.56022 14.6422 9.71517 14.6422 9.89746C14.6422 10.0798 14.5784 10.2347 14.4508 10.3623ZM0.970288 3.58105C0.879142 3.58105 0.797111 3.55371 0.724194 3.49902C0.669507 3.42611 0.642163 3.34408 0.642163 3.25293V2.37793C0.642163 2.28678 0.669507 2.21387 0.724194 2.15918C0.797111 2.08626 0.879142 2.0498 0.970288 2.0498H4.00544C4.09659 2.0498 4.17862 2.08626 4.25154 2.15918L6.71248 4.81152L5.67341 5.93262L3.48591 3.58105H0.970288ZM14.4508 2.43262C14.5784 2.56022 14.6422 2.71517 14.6422 2.89746C14.6422 3.07975 14.5784 3.2347 14.4508 3.3623L12.2906 5.3584C12.0719 5.55892 11.8258 5.60449 11.5523 5.49512C11.2789 5.38574 11.1422 5.18522 11.1422 4.89355V3.58105H10.814L4.25154 10.6904C4.17862 10.7633 4.09659 10.7998 4.00544 10.7998H0.970288C0.751538 10.7998 0.642163 10.6904 0.642163 10.4717V9.59668C0.642163 9.37793 0.751538 9.26855 0.970288 9.26855H3.48591L10.0484 2.15918C10.1213 2.08626 10.2034 2.0498 10.2945 2.0498H11.1422V0.956055C11.1422 0.664388 11.2789 0.463867 11.5523 0.354492C11.8258 0.245117 12.0719 0.29069 12.2906 0.491211L14.4508 2.43262Z" fill="currentColor"/>
+      </svg>
+    {% when 'search' %}
+      <svg class="{{ size_class_final }} {{ class }}" fill="currentColor" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="{{ size_style }}">
+        <path d="M508.5 468.9L387.1 347.5c-2.3-2.3-5.3-3.5-8.5-3.5h-13.2c31.5-36.5 50.6-84 50.6-136C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c52 0 99.5-19.1 136-50.6v13.2c0 3.2 1.3 6.2 3.5 8.5l121.4 121.4c4.7 4.7 12.3 4.7 17 0l22.6-22.6c4.7-4.7 4.7-12.3 0-17zM208 368c-88.4 0-160-71.6-160-160S119.6 48 208 48s160 71.6 160 160-71.6 160-160 160z"/>
+      </svg>
+    {% else %}
+      {{ '' }}
+  {% endcase %}
+{% endif %}

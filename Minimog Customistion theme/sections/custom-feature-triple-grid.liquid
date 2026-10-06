@@ -1,0 +1,600 @@
+{% liquid
+  assign container = section.settings.container
+  if container == 'w-full'
+    assign container = 'container-full'
+  endif
+
+  assign animation_effect = settings.animations
+  assign animated = false
+  if animation_effect != 'none'
+    assign animated = true
+    if section.settings.animations != 'inherit'
+      assign animation_effect = section.settings.animations
+    endif
+  endif
+
+  assign blocks_left_top = section.blocks | where: 'type', 'left_top'
+  assign blocks_left_bottom = section.blocks | where: 'type', 'left_bottom'
+  assign blocks_center_image = section.blocks | where: 'type', 'center_image'
+  assign blocks_right_top = section.blocks | where: 'type', 'right_top'
+  assign blocks_right_bottom = section.blocks | where: 'type', 'right_bottom'
+
+  assign block_left_top = blocks_left_top | first
+  assign block_left_bottom = blocks_left_bottom | first
+  assign block_center_image = blocks_center_image | first
+  assign block_right_top = blocks_right_top | first
+  assign block_right_bottom = blocks_right_bottom | first
+
+  assign block_heading_size = section.settings.block_heading_size | default: 'h4'
+%}
+
+{%- capture section_classes -%}
+m-section custom-feature-triple-grid {{ section.settings.custom_class }} m-section-{{ section.id }} m-gradient m-color-{{ section.settings.color_scheme }}
+{%- endcapture -%}
+
+{%- style -%}
+  .m-section-{{ section.id }} {
+    --section-padding-top: {{ section.settings.padding_top }}px;
+    --section-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --ftg-gap: {{ section.settings.grid_gap }}rem;
+    --ftg-radius: {{ section.settings.border_radius }}px;
+    --ftg-shadow-soft: 0 6px 16px rgba(0, 0, 0, 0.08);
+    --ftg-icon-size: {{ section.settings.icon_size }}px;
+    --ftg-center-image-width: {{ section.settings.center_image_width }}px;
+  }
+
+  #m-section-{{ section.id }} .ftg-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ftg-gap);
+  }
+
+  #m-section-{{ section.id }} .ftg-card {
+    border-radius: var(--ftg-radius);
+    overflow: hidden;
+    background: rgba(var(--color-background), 0.72);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 220ms ease, transform 220ms ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  #m-section-{{ section.id }} .ftg-card:hover {
+    box-shadow: var(--ftg-shadow-soft);
+    transform: translateY(-1px);
+  }
+
+  #m-section-{{ section.id }} .ftg-card__content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1rem;
+  }
+
+  #m-section-{{ section.id }} .ftg-card__content > * {
+    margin: 0;
+  }
+
+  #m-section-{{ section.id }} .ftg-card__content > * + * {
+    margin-top: 0.75rem;
+  }
+
+  @media (min-width: 768px) {
+    #m-section-{{ section.id }} .ftg-card__content {
+      padding: 1.5rem 1.25rem;
+    }
+  }
+
+  #m-section-{{ section.id }} .ftg-card__icon {
+    width: var(--ftg-icon-size);
+    max-width: 120px;
+    height: auto;
+    margin: 0 auto;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  #m-section-{{ section.id }} .ftg-card__icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+  }
+
+  #m-section-{{ section.id }} .ftg-card .ftg-button {
+    transition: transform 180ms ease, box-shadow 220ms ease;
+  }
+
+  #m-section-{{ section.id }} .ftg-card .ftg-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+  }
+
+  #m-section-{{ section.id }} .ftg-center-placeholder {
+    min-height: 120px;
+    border-radius: var(--ftg-radius);
+    background: rgba(var(--color-background), 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #m-section-{{ section.id }} .ftg-center-image {
+    width: min(100%, var(--ftg-center-image-width));
+    height: auto;
+    margin: 0 auto;
+    display: block;
+    object-fit: contain;
+  }
+
+  #m-section-{{ section.id }} .ftg-divider {
+    height: 1px;
+    background: rgba(var(--color-border), 0.45);
+  }
+
+  @media (min-width: 1024px) {
+    #m-section-{{ section.id }} .ftg-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: var(--ftg-gap);
+      align-items: stretch;
+    }
+
+    #m-section-{{ section.id }} .ftg-center {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      height: 100%;
+      min-height: 200px;
+    }
+
+    #m-section-{{ section.id }} .ftg-left-top { grid-column: 1; grid-row: 1; }
+    #m-section-{{ section.id }} .ftg-left-bottom { grid-column: 1; grid-row: 2; }
+    #m-section-{{ section.id }} .ftg-right-top { grid-column: 3; grid-row: 1; }
+    #m-section-{{ section.id }} .ftg-right-bottom { grid-column: 3; grid-row: 2; }
+  }
+{%- endstyle -%}
+
+<section id="m-section-{{ section.id }}" class="{{ section_classes }}">
+  <div class="{{ container }} m-section-my m-section-py">
+    {% render 'index-section-header', section_settings: section.settings %}
+
+    <div class="ftg-grid">
+      {%- comment -%} Mobile order: left blocks -> center image -> right blocks {%- endcomment -%}
+      {%- assign animation_order = 1 -%}
+
+      {%- comment -%} Left Top {%- endcomment -%}
+      <div
+        class="ftg-left-top ftg-card{% if animated %} m-scroll-trigger animate--{{ animation_effect }}{% endif %}"
+        {% if animated %} data-cascade style="--animation-order: {{ animation_order }};" {% endif %}
+      >
+        {% assign animation_order = animation_order | plus: 1 %}
+        <div class="ftg-card__content">
+          {% if block_left_top != blank and block_left_top.settings.image != blank %}
+            <div class="ftg-card__icon-wrap">
+              {%- assign icon_alt = block_left_top.settings.image_alt | default: block_left_top.settings.image.alt | default: 'Icon' -%}
+              {{ block_left_top.settings.image
+                | image_url: width: 240
+                | image_tag:
+                  loading: 'lazy',
+                  alt: icon_alt,
+                  widths: '80,120,160,200,240',
+                  sizes: '120px',
+                  class: 'ftg-card__icon'
+              }}
+            </div>
+          {% endif %}
+          {% if block_left_top != blank and block_left_top.settings.heading != blank %}
+            <h3 class="m-section__heading {{ block_heading_size }} m:mb-2">{{ block_left_top.settings.heading }}</h3>
+          {% endif %}
+          {% if block_left_top != blank and block_left_top.settings.description != blank %}
+            <div class="rte m:mb-3 m:max-w-full">{{ block_left_top.settings.description }}</div>
+          {% endif %}
+          {% if block_left_top != blank and block_left_top.settings.button_text != blank %}
+            <a href="{{ block_left_top.settings.button_link | default: '#' }}" class="ftg-button m-button m-button--primary m-button--small">
+              {{ block_left_top.settings.button_text }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      {%- comment -%} Left Bottom {%- endcomment -%}
+      <div
+        class="ftg-left-bottom ftg-card{% if animated %} m-scroll-trigger animate--{{ animation_effect }}{% endif %}"
+        {% if animated %} data-cascade style="--animation-order: {{ animation_order }};" {% endif %}
+      >
+        {% assign animation_order = animation_order | plus: 1 %}
+        <div class="ftg-card__content">
+          {% if block_left_bottom != blank and block_left_bottom.settings.image != blank %}
+            <div class="ftg-card__icon-wrap">
+              {%- assign icon_alt = block_left_bottom.settings.image_alt | default: block_left_bottom.settings.image.alt | default: 'Icon' -%}
+              {{ block_left_bottom.settings.image
+                | image_url: width: 240
+                | image_tag:
+                  loading: 'lazy',
+                  alt: icon_alt,
+                  widths: '80,120,160,200,240',
+                  sizes: '120px',
+                  class: 'ftg-card__icon'
+              }}
+            </div>
+          {% endif %}
+          {% if block_left_bottom != blank and block_left_bottom.settings.heading != blank %}
+            <h3 class="m-section__heading {{ block_heading_size }} m:mb-2">{{ block_left_bottom.settings.heading }}</h3>
+          {% endif %}
+          {% if block_left_bottom != blank and block_left_bottom.settings.description != blank %}
+            <div class="rte m:mb-3 m:max-w-full">{{ block_left_bottom.settings.description }}</div>
+          {% endif %}
+          {% if block_left_bottom != blank and block_left_bottom.settings.button_text != blank %}
+            <a href="{{ block_left_bottom.settings.button_link | default: '#' }}" class="ftg-button m-button m-button--primary m-button--small">
+              {{ block_left_bottom.settings.button_text }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      {%- comment -%} Center image (after left blocks on mobile) {%- endcomment -%}
+      <div
+        class="ftg-center{% if animated %} m-scroll-trigger animate--{{ animation_effect }}{% endif %}"
+        {% if animated %} data-cascade style="--animation-order: {{ animation_order }};" {% endif %}
+      >
+        {% assign animation_order = animation_order | plus: 1 %}
+        {% if block_center_image != blank and block_center_image.settings.image != blank %}
+          <div class="ftg-card m:w-full m:h-full">
+            <div class="ftg-card__content">
+              {%- assign center_alt = block_center_image.settings.image_alt | default: block_center_image.settings.image.alt | default: 'Center image' -%}
+              {{ block_center_image.settings.image
+                | image_url: width: 1400
+                | image_tag:
+                  loading: 'lazy',
+                  alt: center_alt,
+                  widths: '240,360,480,640,800,1000,1200,1400',
+                  sizes: '(min-width: 1024px) 520px, 100vw',
+                  class: 'ftg-center-image'
+              }}
+            </div>
+          </div>
+        {% else %}
+          <div class="ftg-center-placeholder m:w-full m:h-full"></div>
+        {% endif %}
+      </div>
+
+      {%- comment -%} Right Top {%- endcomment -%}
+      <div
+        class="ftg-right-top ftg-card{% if animated %} m-scroll-trigger animate--{{ animation_effect }}{% endif %}"
+        {% if animated %} data-cascade style="--animation-order: {{ animation_order }};" {% endif %}
+      >
+        {% assign animation_order = animation_order | plus: 1 %}
+        <div class="ftg-card__content">
+          {% if block_right_top != blank and block_right_top.settings.image != blank %}
+            <div class="ftg-card__icon-wrap">
+              {%- assign icon_alt = block_right_top.settings.image_alt | default: block_right_top.settings.image.alt | default: 'Icon' -%}
+              {{ block_right_top.settings.image
+                | image_url: width: 240
+                | image_tag:
+                  loading: 'lazy',
+                  alt: icon_alt,
+                  widths: '80,120,160,200,240',
+                  sizes: '120px',
+                  class: 'ftg-card__icon'
+              }}
+            </div>
+          {% endif %}
+          {% if block_right_top != blank and block_right_top.settings.heading != blank %}
+            <h3 class="m-section__heading {{ block_heading_size }} m:mb-2">{{ block_right_top.settings.heading }}</h3>
+          {% endif %}
+          {% if block_right_top != blank and block_right_top.settings.description != blank %}
+            <div class="rte m:mb-3 m:max-w-full">{{ block_right_top.settings.description }}</div>
+          {% endif %}
+          {% if block_right_top != blank and block_right_top.settings.button_text != blank %}
+            <a href="{{ block_right_top.settings.button_link | default: '#' }}" class="ftg-button m-button m-button--primary m-button--small">
+              {{ block_right_top.settings.button_text }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+
+      {%- comment -%} Right Bottom {%- endcomment -%}
+      <div
+        class="ftg-right-bottom ftg-card{% if animated %} m-scroll-trigger animate--{{ animation_effect }}{% endif %}"
+        {% if animated %} data-cascade style="--animation-order: {{ animation_order }};" {% endif %}
+      >
+        <div class="ftg-card__content">
+          {% if block_right_bottom != blank and block_right_bottom.settings.image != blank %}
+            <div class="ftg-card__icon-wrap">
+              {%- assign icon_alt = block_right_bottom.settings.image_alt | default: block_right_bottom.settings.image.alt | default: 'Icon' -%}
+              {{ block_right_bottom.settings.image
+                | image_url: width: 240
+                | image_tag:
+                  loading: 'lazy',
+                  alt: icon_alt,
+                  widths: '80,120,160,200,240',
+                  sizes: '120px',
+                  class: 'ftg-card__icon'
+              }}
+            </div>
+          {% endif %}
+          {% if block_right_bottom != blank and block_right_bottom.settings.heading != blank %}
+            <h3 class="m-section__heading {{ block_heading_size }} m:mb-2">{{ block_right_bottom.settings.heading }}</h3>
+          {% endif %}
+          {% if block_right_bottom != blank and block_right_bottom.settings.description != blank %}
+            <div class="rte m:mb-3 m:max-w-full">{{ block_right_bottom.settings.description }}</div>
+          {% endif %}
+          {% if block_right_bottom != blank and block_right_bottom.settings.button_text != blank %}
+            <a href="{{ block_right_bottom.settings.button_link | default: '#' }}" class="ftg-button m-button m-button--primary m-button--small">
+              {{ block_right_bottom.settings.button_text }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% if section.settings.show_divider %}
+      <div class="m:mt-8 md:m:mt-10 ftg-divider"></div>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Feature Triple Grid",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section header"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "default": "h3",
+      "options": [
+        { "label": "Small", "value": "h4" },
+        { "label": "Medium", "value": "h3" },
+        { "label": "Large", "value": "h2" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description"
+    },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Header alignment",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "General"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "label": "Container type",
+      "default": "container-fluid",
+      "options": [
+        { "value": "container-fluid", "label": "Default" },
+        { "value": "w-full", "label": "Full width" },
+        { "value": "container", "label": "Use container box" }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_divider",
+      "label": "Show divider under section",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Gap (rem)",
+      "min": 0.5,
+      "max": 4,
+      "step": 0.5,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Block icon/image size",
+      "min": 48,
+      "max": 120,
+      "step": 4,
+      "default": 80,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "center_image_width",
+      "label": "Center image width",
+      "min": 220,
+      "max": 900,
+      "step": 10,
+      "default": 520,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "block_heading_size",
+      "label": "Block heading size",
+      "default": "h4",
+      "options": [
+        { "label": "Small", "value": "h5" },
+        { "label": "Medium", "value": "h4" },
+        { "label": "Large", "value": "h3" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "default": 50,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "default": 50,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Animations"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "Animations",
+      "default": "inherit",
+      "options": [
+        { "value": "inherit", "label": "Inherit" },
+        { "value": "fade-in", "label": "Fade in" },
+        { "value": "fade-in-up", "label": "Fade in up" },
+        { "value": "fade-in-left", "label": "Fade in left" },
+        { "value": "fade-in-right", "label": "Fade in right" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Custom"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "Custom classes"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "left_top",
+      "name": "Content — Left Top",
+      "limit": 1,
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Small image (PNG)" },
+        { "type": "text", "id": "image_alt", "label": "Image alt text", "default": "Image" },
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Left top" },
+        { "type": "richtext", "id": "description", "label": "Description", "default": "<p>Short description.</p>" },
+        { "type": "text", "id": "button_text", "label": "Button text", "default": "Learn more" },
+        { "type": "url", "id": "button_link", "label": "Button link" }
+      ]
+    },
+    {
+      "type": "left_bottom",
+      "name": "Content — Left Bottom",
+      "limit": 1,
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Small image (PNG)" },
+        { "type": "text", "id": "image_alt", "label": "Image alt text", "default": "Image" },
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Left bottom" },
+        { "type": "richtext", "id": "description", "label": "Description", "default": "<p>Short description.</p>" },
+        { "type": "text", "id": "button_text", "label": "Button text", "default": "Shop now" },
+        { "type": "url", "id": "button_link", "label": "Button link" }
+      ]
+    },
+    {
+      "type": "center_image",
+      "name": "Center image",
+      "limit": 1,
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Center image" },
+        { "type": "text", "id": "image_alt", "label": "Image alt text", "default": "Image" },
+        { "type": "paragraph", "content": "This image shows in the center column on desktop and first on mobile." }
+      ]
+    },
+    {
+      "type": "right_top",
+      "name": "Content — Right Top",
+      "limit": 1,
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Small image (PNG)" },
+        { "type": "text", "id": "image_alt", "label": "Image alt text", "default": "Image" },
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Right top" },
+        { "type": "richtext", "id": "description", "label": "Description", "default": "<p>Short description.</p>" },
+        { "type": "text", "id": "button_text", "label": "Button text", "default": "View details" },
+        { "type": "url", "id": "button_link", "label": "Button link" }
+      ]
+    },
+    {
+      "type": "right_bottom",
+      "name": "Content — Right Bottom",
+      "limit": 1,
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Small image (PNG)" },
+        { "type": "text", "id": "image_alt", "label": "Image alt text", "default": "Image" },
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Right bottom" },
+        { "type": "richtext", "id": "description", "label": "Description", "default": "<p>Short description.</p>" },
+        { "type": "text", "id": "button_text", "label": "Button text", "default": "Explore" },
+        { "type": "url", "id": "button_link", "label": "Button link" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Feature Triple Grid",
+      "category": "Image",
+      "blocks": [
+        { "type": "left_top" },
+        { "type": "left_bottom" },
+        { "type": "center_image" },
+        { "type": "right_top" },
+        { "type": "right_bottom" }
+      ]
+    }
+  ]
+}
+{% endschema %}
