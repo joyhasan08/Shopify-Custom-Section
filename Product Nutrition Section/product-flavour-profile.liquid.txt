@@ -1,0 +1,1108 @@
+{% comment %}
+  Dynamic Product Specifications
+
+  Layout:
+  - Black section background
+  - Left heading and product description
+  - Right white card with product name, specifications, and image
+
+  Specifications:
+  - Both labels and values are extracted dynamically
+  - Displays up to four distinct specifications
+  - No fixed specification names
+  - No invented values
+
+  Extraction priority:
+  1. Two-column specification tables
+  2. Definition lists
+  3. Label: value text and leading bold labels
+  4. Description headings with supporting content
+  5. Description bullets or sentences as excerpts
+
+  Optional metafields:
+  custom.profile_heading  — Single line text
+  custom.profile_intro    — Multi-line text
+  custom.profile_name     — Single line text
+  custom.profile_image    — File reference, images only
+
+  Previous flavour image/name/intro metafields remain supported
+  as secondary fallbacks.
+
+  No external libraries or API keys.
+{% endcomment %}
+
+{%- liquid
+  assign profile_product = product
+
+  if profile_product == blank
+    assign profile_product = section.settings.fallback_product
+  endif
+
+  assign profile_heading = profile_product.metafields.custom.profile_heading.value
+
+  if profile_heading == blank
+    assign profile_heading = section.settings.heading
+  endif
+
+  assign profile_name = profile_product.metafields.custom.profile_name.value
+
+  if profile_name == blank
+    assign profile_name = profile_product.metafields.custom.flavour_name.value
+  endif
+
+  if profile_name == blank
+    assign profile_name = profile_product.title
+  endif
+
+  assign profile_intro = profile_product.metafields.custom.profile_intro.value
+
+  if profile_intro == blank
+    assign profile_intro = profile_product.metafields.custom.flavour_intro.value
+  endif
+
+  if profile_intro == blank
+    assign profile_intro = profile_product.description | strip_html | strip | truncatewords: section.settings.description_words
+  endif
+
+  assign profile_image_file = profile_product.metafields.custom.profile_image.value
+  assign profile_image = profile_image_file.preview_image
+
+  if profile_image == blank
+    assign previous_image_file = profile_product.metafields.custom.flavour_image.value
+    assign profile_image = previous_image_file.preview_image
+  endif
+
+  if profile_image == blank
+    if profile_product.images.size > 1
+      assign profile_image = profile_product.images[1]
+    elsif profile_product.media.size > 1
+      assign profile_image = profile_product.media[1].preview_image | default: profile_product.media[1]
+    else
+      assign profile_image = profile_product.featured_image
+    endif
+  endif
+
+  assign heading_id = 'DynamicProfileHeading-' | append: section.id
+-%}
+
+{% style %}
+  #shopify-section-{{ section.id }} {
+    --dps-background: {{ section.settings.background_color }};
+    --dps-text: {{ section.settings.text_color }};
+    --dps-card-background: {{ section.settings.card_background }};
+    --dps-card-text: {{ section.settings.card_text }};
+    --dps-divider: {{ section.settings.divider_color }};
+    --dps-width: {{ section.settings.max_width }}px;
+  }
+
+  #shopify-section-{{ section.id }} .dps-section,
+  #shopify-section-{{ section.id }} .dps-section * {
+    box-sizing: border-box;
+  }
+
+  #shopify-section-{{ section.id }} .dps-section {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding:
+      {{ section.settings.padding_top }}px
+      24px
+      {{ section.settings.padding_bottom }}px;
+    background: var(--dps-background);
+    color: var(--dps-text);
+    font-family: inherit;
+  }
+
+  #shopify-section-{{ section.id }} .dps-container {
+    display: grid;
+    /* joy */
+    /* grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.85fr); */
+    align-items: start;
+    gap: {{ section.settings.column_gap }}px;
+    width: 100%;
+    max-width: var(--dps-width);
+    margin: 0 auto;
+  }
+
+  /* Introduction */
+
+  #shopify-section-{{ section.id }} .dps-introduction {
+    min-width: 0;
+    padding-top: 4px;
+  }
+
+  #shopify-section-{{ section.id }} .dps-heading {
+    margin: 0 0 8px;
+    padding: 0;
+    color: var(--dps-text);
+    font-family: inherit;
+    font-size: {{ section.settings.heading_size }}px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.8px;
+    text-transform: none;
+    overflow-wrap: anywhere;
+  }
+
+  #shopify-section-{{ section.id }} .dps-description {
+    margin: 0;
+    color: var(--dps-text);
+    font-family: inherit;
+    font-size: {{ section.settings.body_size }}px;
+    font-weight: 400;
+    line-height: 1.45;
+    letter-spacing: 0;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+  }
+
+  /* Profile card */
+
+  #shopify-section-{{ section.id }} .dps-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.06fr) minmax(0, 1fr);
+    align-items: center;
+    gap: {{ section.settings.card_gap }}px;
+    min-width: 0;
+    padding: {{ section.settings.card_padding }}px;
+    border-radius: {{ section.settings.card_radius }}px;
+    background: var(--dps-card-background);
+    color: var(--dps-card-text);
+  }
+
+  #shopify-section-{{ section.id }} .dps-details {
+    min-width: 0;
+    align-self: start;
+  }
+
+  #shopify-section-{{ section.id }} .dps-name {
+    margin: 0 0 20px;
+    padding: 0;
+    color: var(--dps-card-text);
+    font-family: inherit;
+    font-size: {{ section.settings.name_size }}px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.3px;
+    text-transform: none;
+    overflow-wrap: anywhere;
+  }
+
+  #shopify-section-{{ section.id }} .dps-rows {
+    margin: 0;
+    padding: 0;
+  }
+
+  #shopify-section-{{ section.id }} .dps-row {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.55fr);
+    align-items: center;
+    gap: 16px;
+    min-height: {{ section.settings.row_height }}px;
+    margin: 0;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--dps-divider);
+  }
+
+  #shopify-section-{{ section.id }} .dps-row:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  #shopify-section-{{ section.id }} .dps-label {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    color: var(--dps-card-text);
+    font-family: inherit;
+    font-size: {{ section.settings.label_size }}px;
+    font-weight: 600;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  #shopify-section-{{ section.id }} .dps-value {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    color: var(--dps-card-text);
+    font-family: inherit;
+    font-size: {{ section.settings.value_size }}px;
+    font-weight: 400;
+    line-height: 1.45;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  #shopify-section-{{ section.id }} .dps-image-wrapper {
+    width: 100%;
+    aspect-ratio: {{ section.settings.image_ratio }};
+    overflow: hidden;
+    border-radius: {{ section.settings.image_radius }}px;
+    background: #eeeeee;
+  }
+
+  #shopify-section-{{ section.id }} .dps-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: {{ section.settings.image_fit }};
+  }
+
+  #shopify-section-{{ section.id }} .dps-placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: #b0b0b0;
+  }
+
+  #shopify-section-{{ section.id }} .dps-empty {
+    margin: 0;
+    color: var(--dps-card-text);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  #shopify-section-{{ section.id }} .dps-editor-note {
+    max-width: var(--dps-width);
+    margin: 0 auto;
+    color: var(--dps-text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  #shopify-section-{{ section.id }} [hidden] {
+    display: none !important;
+  }
+
+  @media screen and (max-width: 1100px) {
+    #shopify-section-{{ section.id }} .dps-container {
+      gap: 30px;
+    }
+
+    #shopify-section-{{ section.id }} .dps-card {
+      gap: 22px;
+    }
+  }
+
+  @media screen and (max-width: 899px) {
+    #shopify-section-{{ section.id }} .dps-container {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 28px;
+    }
+
+    #shopify-section-{{ section.id }} .dps-introduction {
+      max-width: 680px;
+    }
+  }
+
+  @media screen and (max-width: 599px) {
+    #shopify-section-{{ section.id }} .dps-section {
+      padding:
+        {{ section.settings.mobile_padding_top }}px
+        20px
+        {{ section.settings.mobile_padding_bottom }}px;
+    }
+
+    #shopify-section-{{ section.id }} .dps-heading {
+      font-size: {{ section.settings.mobile_heading_size }}px;
+    }
+
+    #shopify-section-{{ section.id }} .dps-description {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    #shopify-section-{{ section.id }} .dps-card {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+      padding: 20px;
+    }
+
+    #shopify-section-{{ section.id }} .dps-name {
+      margin-bottom: 12px;
+      font-size: 24px;
+    }
+
+    #shopify-section-{{ section.id }} .dps-row {
+      gap: 14px;
+      min-height: 48px;
+    }
+
+    #shopify-section-{{ section.id }} .dps-label {
+      font-size: 14px;
+    }
+
+    #shopify-section-{{ section.id }} .dps-value {
+      font-size: 13px;
+    }
+  }
+{% endstyle %}
+
+{%- if profile_product != blank -%}
+  <dynamic-product-specifications
+    class="dps-section"
+    data-label-words="{{ section.settings.label_words }}"
+    data-value-words="{{ section.settings.value_words }}"
+    data-allow-excerpts="{{ section.settings.allow_excerpts }}"
+  >
+    <div class="dps-container">
+
+      <div class="dps-introduction">
+        {%- if profile_heading != blank -%}
+          <h2 id="{{ heading_id }}" class="dps-heading">
+            {{ profile_heading | escape }}
+          </h2>
+        {%- endif -%}
+
+        {%- if profile_intro != blank -%}
+          <p class="dps-description">
+            {{ profile_intro | escape }}
+          </p>
+        {%- endif -%}
+      </div>
+
+      <div
+        class="dps-card"
+        {% if profile_heading != blank %}
+          role="group"
+          aria-labelledby="{{ heading_id }}"
+        {% endif %}
+      >
+        <div class="dps-details">
+          <h3 class="dps-name">
+            {{ profile_name | escape }}
+          </h3>
+
+          <dl class="dps-rows" data-specification-list></dl>
+
+          {%- if request.design_mode -%}
+            <p class="dps-empty" data-empty-note hidden>
+              No specifications could be extracted. Add a specification
+              table, bullet points, or descriptive paragraphs to this product.
+            </p>
+          {%- endif -%}
+
+          <noscript>
+            <p class="dps-empty">
+              {{ profile_product.description | strip_html | truncatewords: 60 | escape }}
+            </p>
+          </noscript>
+        </div>
+
+        <div class="dps-image-wrapper">
+          {%- if profile_image != blank -%}
+            {{
+              profile_image
+              | image_url: width: 1200
+              | image_tag:
+                class: 'dps-image',
+                loading: 'lazy',
+                widths: '300, 500, 700, 900, 1200',
+                sizes: '(max-width: 599px) 90vw, (max-width: 899px) 45vw, 30vw',
+                alt: profile_image.alt
+            }}
+          {%- else -%}
+            {{ 'product-1' | placeholder_svg_tag: 'dps-placeholder' }}
+          {%- endif -%}
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Inert source; only extracted text is rendered into the card. -->
+    <template data-description-source>
+      {{ profile_product.description }}
+    </template>
+
+    <template data-specification-template>
+      <div class="dps-row">
+        <dt class="dps-label"></dt>
+        <dd class="dps-value"></dd>
+      </div>
+    </template>
+  </dynamic-product-specifications>
+
+{%- elsif request.design_mode -%}
+  <div class="dps-section">
+    <p class="dps-editor-note">
+      Add this section to a product template, or select a fallback product.
+    </p>
+  </div>
+{%- endif -%}
+
+<script>
+  if (!customElements.get('dynamic-product-specifications')) {
+    customElements.define(
+      'dynamic-product-specifications',
+      class extends HTMLElement {
+        connectedCallback() {
+          if (this.initialized) return;
+          this.initialized = true;
+
+          const sourceTemplate = this.querySelector(
+            '[data-description-source]'
+          );
+          const rowTemplate = this.querySelector(
+            '[data-specification-template]'
+          );
+          const list = this.querySelector('[data-specification-list]');
+
+          if (!sourceTemplate || !rowTemplate || !list) return;
+
+          this.labelWords = Number(this.dataset.labelWords) || 5;
+          this.valueWords = Number(this.dataset.valueWords) || 28;
+
+          const source = sourceTemplate.content.cloneNode(true);
+
+          source.querySelectorAll(
+            'script, style, iframe, noscript, template'
+          ).forEach((element) => element.remove());
+
+          const specifications = this.extractSpecifications(source);
+
+          list.replaceChildren();
+
+          specifications.forEach((specification) => {
+            const fragment = rowTemplate.content.cloneNode(true);
+            const label = fragment.querySelector('.dps-label');
+            const value = fragment.querySelector('.dps-value');
+
+            label.textContent = this.shorten(
+              specification.label,
+              this.labelWords
+            );
+
+            value.textContent = this.shorten(
+              specification.value,
+              this.valueWords
+            );
+
+            if (label.textContent !== specification.label) {
+              label.title = specification.label;
+            }
+
+            if (value.textContent !== specification.value) {
+              value.title = specification.value;
+            }
+
+            list.appendChild(fragment);
+          });
+
+          const emptyNote = this.querySelector('[data-empty-note]');
+
+          if (emptyNote) {
+            emptyNote.hidden = specifications.length > 0;
+          }
+        }
+
+        normalize(value) {
+          return String(value || '')
+            .replace(/\u00a0/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+        }
+
+        shorten(value, limit) {
+          const text = this.normalize(value);
+          const words = text.split(/\s+/);
+
+          if (words.length <= limit) return text;
+
+          return words
+            .slice(0, limit)
+            .join(' ')
+            .replace(/[,;:\-]+$/, '') + '…';
+        }
+
+        readableText(node) {
+          const clone = node.cloneNode(true);
+
+          if (clone.querySelectorAll) {
+            clone.querySelectorAll(
+              'p, div, li, br, h1, h2, h3, h4, h5, h6'
+            ).forEach((element) => {
+              element.appendChild(document.createTextNode(' '));
+            });
+          }
+
+          return this.normalize(clone.textContent);
+        }
+
+        splitPair(text) {
+          const clean = this.normalize(text);
+
+          // Only treat a short leading phrase as a label.
+          const match = clean.match(
+            /^([^:：\n]{2,65})\s*[:：]\s*(.+)$/
+          );
+
+          if (!match) return null;
+
+          const label = match[1].trim();
+          const value = match[2].trim();
+
+          if (
+            label.split(/\s+/).length > 9 ||
+            !value ||
+            /^https?$/i.test(label)
+          ) {
+            return null;
+          }
+
+          return { label, value };
+        }
+
+        extractSpecifications(source) {
+          const specifications = [];
+          const usedLabels = new Set();
+          const usedValues = new Set();
+
+          const add = (label, value) => {
+            if (specifications.length >= 4) return;
+
+            label = this.normalize(label)
+              .replace(/[:：\s]+$/, '');
+
+            value = this.normalize(value);
+
+            if (
+              label.length < 2 ||
+              !value ||
+              label.length > 160
+            ) {
+              return;
+            }
+
+            const labelKey = label.toLocaleLowerCase();
+            const valueKey = value.toLocaleLowerCase();
+
+            if (
+              usedLabels.has(labelKey) ||
+              usedValues.has(valueKey)
+            ) {
+              return;
+            }
+
+            specifications.push({ label, value });
+            usedLabels.add(labelKey);
+            usedValues.add(valueKey);
+          };
+
+          // 1. Two-column specification tables.
+          // Wider tables are skipped because their meaning may depend
+          // on column headers, serving sizes, or multiple variants.
+          source.querySelectorAll('tr').forEach((row) => {
+            if (row.closest('thead')) return;
+
+            const cells = [...row.children].filter((cell) => {
+              return cell.matches('th, td');
+            });
+
+            if (cells.length !== 2) return;
+            if (cells.every((cell) => cell.tagName === 'TH')) return;
+
+            add(
+              this.readableText(cells[0]),
+              this.readableText(cells[1])
+            );
+          });
+
+          // 2. Definition lists: <dt>Material</dt><dd>Cotton</dd>.
+          source.querySelectorAll('dt').forEach((term) => {
+            const definition = term.nextElementSibling;
+
+            if (definition?.tagName === 'DD') {
+              add(
+                this.readableText(term),
+                this.readableText(definition)
+              );
+            }
+          });
+
+          // 3. Label: value content and leading bold labels.
+          source.querySelectorAll('li, p').forEach((element) => {
+            if (
+              element.closest('table, dl') ||
+              (element.tagName === 'P' && element.closest('li'))
+            ) {
+              return;
+            }
+
+            // Preserve <br> boundaries for specifications written
+            // as several lines inside a single paragraph.
+            const clone = element.cloneNode(true);
+
+            clone.querySelectorAll('br').forEach((br) => {
+              br.replaceWith(document.createTextNode('\n'));
+            });
+
+            const lines = clone.textContent
+              .split(/\n+/)
+              .map((line) => this.normalize(line))
+              .filter(Boolean);
+
+            let foundPair = false;
+
+            lines.forEach((line) => {
+              const pair = this.splitPair(line);
+
+              if (pair) {
+                foundPair = true;
+                add(pair.label, pair.value);
+              }
+            });
+
+            if (foundPair) return;
+
+            const fullText = this.readableText(element);
+            const boldElement = element.querySelector('strong, b');
+            const boldText = this.normalize(boldElement?.textContent);
+
+            if (
+              boldText &&
+              fullText.startsWith(boldText) &&
+              boldText.split(/\s+/).length <= 9
+            ) {
+              const remaining = fullText
+                .slice(boldText.length)
+                .replace(/^[\s:：–—-]+/, '')
+                .trim();
+
+              if (remaining) {
+                add(boldText, remaining);
+              }
+            }
+          });
+
+          // 4. Headings with their following description content.
+          const headings = [
+            ...source.querySelectorAll('h2, h3, h4, h5, h6')
+          ].filter((heading) => !heading.closest('table, dl'));
+
+          headings.forEach((heading, index) => {
+            if (specifications.length >= 4) return;
+
+            try {
+              const range = document.createRange();
+              range.setStartAfter(heading);
+
+              if (headings[index + 1]) {
+                range.setEndBefore(headings[index + 1]);
+              } else {
+                range.setEnd(source, source.childNodes.length);
+              }
+
+              const content = range.cloneContents();
+
+              // Exclude structured data already handled above.
+              content.querySelectorAll('table, dl').forEach((element) => {
+                element.remove();
+              });
+
+              add(
+                this.readableText(heading),
+                this.readableText(content)
+              );
+            } catch (error) {
+              // Continue to the optional excerpt fallback.
+            }
+          });
+
+          // 5. Optional excerpts from unstructured description text.
+          // Labels are shortened source phrases, not invented categories.
+          if (
+            specifications.length < 4 &&
+            this.dataset.allowExcerpts === 'true'
+          ) {
+            const excerptSources = [
+              ...source.querySelectorAll('li, p')
+            ].filter((element) => {
+              return (
+                !element.closest('table, dl') &&
+                !(element.tagName === 'P' && element.closest('li'))
+              );
+            });
+
+            const excerptTexts = excerptSources.length
+              ? excerptSources.map((element) => this.readableText(element))
+              : [this.readableText(source)];
+
+            excerptTexts.forEach((text) => {
+              if (specifications.length >= 4) return;
+              if (!text || this.splitPair(text)) return;
+
+              const sentences = text
+                .split(/([.!?])\s+(?=[A-Z0-9\u00C0-\u024F])/)
+                .reduce((result, part, index) => {
+                  if (index % 2 === 1 && result.length) {
+                    result[result.length - 1] += part;
+                  } else if (part) {
+                    result.push(part);
+                  }
+
+                  return result;
+                });
+
+              sentences.forEach((sentence) => {
+                if (specifications.length >= 4) return;
+
+                const clean = this.normalize(sentence);
+                if (clean.length < 15) return;
+
+                const alreadyCovered = specifications.some((item) => {
+                  const existing = (
+                    item.label + ' ' + item.value
+                  ).toLocaleLowerCase();
+
+                  const candidate = clean.toLocaleLowerCase();
+
+                  return (
+                    existing.includes(candidate) ||
+                    candidate.includes(item.value.toLocaleLowerCase())
+                  );
+                });
+
+                if (alreadyCovered) return;
+
+                add(this.shorten(clean, this.labelWords), clean);
+              });
+            });
+          }
+
+          return specifications;
+        }
+      }
+    );
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Dynamic product profile",
+  "tag": "section",
+  "class": "section-dynamic-product-profile",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Dynamic product content"
+    },
+    {
+      "type": "paragraph",
+      "content": "Extracts up to four specification labels and values from the current product description. Prioritizes two-column tables, definition lists, labelled text and headings. No fixed specification names or invented values."
+    },
+    {
+      "type": "product",
+      "id": "fallback_product",
+      "label": "Fallback product",
+      "info": "Used only when there is no current product."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section heading",
+      "default": "Product Profile",
+      "info": "Optional product override: custom.profile_heading."
+    },
+    {
+      "type": "checkbox",
+      "id": "allow_excerpts",
+      "label": "Use description excerpts when specifications are missing",
+      "default": true,
+      "info": "Uses shortened source phrases as labels. Turn off to show only explicitly structured product information."
+    },
+    {
+      "type": "range",
+      "id": "description_words",
+      "label": "Introduction word limit",
+      "min": 15,
+      "max": 100,
+      "step": 1,
+      "default": 45
+    },
+    {
+      "type": "range",
+      "id": "label_words",
+      "label": "Specification label word limit",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "value_words",
+      "label": "Specification value word limit",
+      "min": 10,
+      "max": 80,
+      "step": 1,
+      "default": 28
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Content maximum width",
+      "min": 900,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "label": "Space between introduction and card",
+      "min": 20,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "label": "Space between specifications and image",
+      "min": 12,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "label": "Card padding",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "row_height",
+      "label": "Specification minimum row height",
+      "min": 40,
+      "max": 90,
+      "step": 2,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Desktop top padding",
+      "min": 0,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Desktop bottom padding",
+      "min": 0,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "paragraph",
+      "content": "Uses the product 2nd image automatically (or 1st image if only one exists). Override per product with the custom.profile_image image file metafield."
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        {
+          "value": "5 / 4",
+          "label": "Landscape"
+        },
+        {
+          "value": "1 / 1",
+          "label": "Square"
+        },
+        {
+          "value": "4 / 5",
+          "label": "Portrait"
+        }
+      ],
+      "default": "5 / 4"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cover"
+        },
+        {
+          "value": "contain",
+          "label": "Contain"
+        }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "range",
+      "id": "image_radius",
+      "label": "Image corner radius",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Section heading size",
+      "min": 24,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "body_size",
+      "label": "Introduction text size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "name_size",
+      "label": "Product name size",
+      "min": 18,
+      "max": 34,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "label_size",
+      "label": "Specification label size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "value_size",
+      "label": "Specification value size",
+      "min": 11,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "range",
+      "id": "mobile_heading_size",
+      "label": "Mobile heading size",
+      "min": 22,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_top",
+      "label": "Mobile top padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_bottom",
+      "label": "Mobile bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Introduction text",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "card_text",
+      "label": "Card text",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Specification dividers",
+      "default": "#D9D9D9"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Dynamic product profile"
+    }
+  ]
+}
+{% endschema %}
