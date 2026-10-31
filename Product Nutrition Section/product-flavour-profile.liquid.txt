@@ -193,6 +193,42 @@
     padding: 0;
   }
 
+  /* BioTechUSA: preserve the product-description content verbatim in a scrollable box. */
+  #shopify-section-{{ section.id }} .dps-biotech-description {
+    max-height: 360px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 14px;
+    border: 1px solid var(--dps-divider);
+    border-radius: 8px;
+    color: var(--dps-card-text);
+    font-size: {{ section.settings.value_size }}px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #shopify-section-{{ section.id }} .dps-biotech-description > :first-child {
+    margin-top: 0;
+  }
+
+  #shopify-section-{{ section.id }} .dps-biotech-description > :last-child {
+    margin-bottom: 0;
+  }
+
+  #shopify-section-{{ section.id }} .dps-biotech-description table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  #shopify-section-{{ section.id }} .dps-biotech-description th,
+  #shopify-section-{{ section.id }} .dps-biotech-description td {
+    padding: 8px;
+    border-bottom: 1px solid var(--dps-divider);
+    text-align: left;
+    vertical-align: top;
+  }
+
   #shopify-section-{{ section.id }} .dps-row {
     display: grid;
     grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.55fr);
@@ -262,8 +298,7 @@
     font-size: 13px;
     line-height: 1.5;
   }
-
-  #shopify-section-{{ section.id }} .dps-editor-note {
+    #shopify-section-{{ section.id }} .dps-editor-note {
     max-width: var(--dps-width);
     margin: 0 auto;
     color: var(--dps-text);
@@ -345,6 +380,7 @@
     data-label-words="{{ section.settings.label_words }}"
     data-value-words="{{ section.settings.value_words }}"
     data-allow-excerpts="{{ section.settings.allow_excerpts }}"
+    data-vendor="{{ profile_product.vendor | escape }}"
   >
     <div class="dps-container">
 
@@ -374,6 +410,7 @@
             {{ profile_name | escape }}
           </h3>
 
+          <div class="dps-biotech-description" data-biotech-description hidden></div>
           <dl class="dps-rows" data-specification-list></dl>
 
           {%- if request.design_mode -%}
@@ -447,6 +484,7 @@
             '[data-specification-template]'
           );
           const list = this.querySelector('[data-specification-list]');
+          const biotechDescription = this.querySelector('[data-biotech-description]');
 
           if (!sourceTemplate || !rowTemplate || !list) return;
 
@@ -459,8 +497,42 @@
             'script, style, iframe, noscript, template'
           ).forEach((element) => element.remove());
 
+          const vendor = (this.dataset.vendor || '').trim().toLocaleLowerCase();
+
+          if (vendor === 'biotechusa' && biotechDescription) {
+            // Show only the product-description tables and their nearest
+            // preceding headings. Keep the original table and heading markup.
+            const tableContent = document.createDocumentFragment();
+            const tables = [...source.querySelectorAll('table')];
+            const headings = [
+              ...source.querySelectorAll('h1, h2, h3, h4, h5, h6')
+            ];
+
+            tables.forEach((table) => {
+              const precedingHeadings = headings.filter((heading) => {
+                return Boolean(
+                  heading.compareDocumentPosition(table) &
+                  Node.DOCUMENT_POSITION_FOLLOWING
+                );
+              });
+              const heading = precedingHeadings[precedingHeadings.length - 1];
+
+              if (heading) {
+                tableContent.appendChild(heading.cloneNode(true));
+              }
+
+              tableContent.appendChild(table.cloneNode(true));
+            });
+
+            biotechDescription.replaceChildren(tableContent);
+            biotechDescription.hidden = false;
+            list.hidden = true;
+            return;
+          }
+
           const specifications = this.extractSpecifications(source);
 
+          list.hidden = false;
           list.replaceChildren();
 
           specifications.forEach((specification) => {
@@ -575,7 +647,7 @@
             }
 
             const labelKey = label.toLocaleLowerCase();
-            const valueKey = value.toLocaleLowerCase();
+                        const valueKey = value.toLocaleLowerCase();
 
             if (
               usedLabels.has(labelKey) ||
@@ -926,7 +998,7 @@
       "type": "header",
       "content": "Image"
     },
-    {
+        {
       "type": "paragraph",
       "content": "Uses the product 2nd image automatically (or 1st image if only one exists). Override per product with the custom.profile_image image file metafield."
     },
@@ -1106,3 +1178,4 @@
   ]
 }
 {% endschema %}
+            
